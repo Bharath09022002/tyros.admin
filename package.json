@@ -1,0 +1,13 @@
+{
+  "name": "tyreapp-web",
+  "version": "1.0.0",
+  "description": "TyreApp Web - Exact HTML/CSS/JS duplicate of Tyros Flutter App for Laptop & Apple Mobile",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["tyreapp", "tyros", "pwa", "mobile"],
+  "author": "",
+  "license": "ISC"
+}
