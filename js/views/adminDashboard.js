@@ -8,16 +8,16 @@ export async function renderAdminDashboard(router) {
   container.className = 'view-screen';
 
   const user = Auth.getUser();
-  const userName = user?.fullName || user?.name || 'Bharath';
+  const userName = user?.fullName || user?.name || 'Administrator';
   const shops = await Store.getShops();
   const allEntries = await Store.getEntries();
   const activeShops = shops.filter(s => s.isActive);
   const nowTime = new Date().toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
 
-  // Compute stats exactly matching Flutter screenshot
+  // Compute live stats directly from real API entries
   const nonDeleted = allEntries;
-  const uniqueCustomerKeys = new Set(nonDeleted.map(e => (e.mobileNumber || e.customerName || '').trim()));
-  const totalCustomers = uniqueCustomerKeys.size > 0 ? uniqueCustomerKeys.size : 27;
+  const uniqueCustomerKeys = new Set(nonDeleted.map(e => (e.mobileNumber || e.customerName || '').trim()).filter(Boolean));
+  const totalCustomers = uniqueCustomerKeys.size;
   const pendingCount = nonDeleted.filter(e => e.status === 'PENDING' && e.fitStatus === 'FIT' && !e.isOverdue).length;
   const overdueCount = nonDeleted.filter(e => e.isOverdue).length;
   const completedCount = nonDeleted.filter(e => e.status === 'COMPLETED' && e.fitStatus === 'FIT').length;
@@ -129,20 +129,24 @@ export async function renderAdminDashboard(router) {
 
   // Render Shop Bars
   const barsEl = container.querySelector('#shop-bars');
-  shopPendingData.forEach(shop => {
-    const fraction = shop.pending > 0 ? Math.min(1, Math.max(0.08, shop.pending / maxPending)) : 0;
-    const barEl = document.createElement('div');
-    barEl.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-        <span style="font-size:13.5px; font-weight:600; color:var(--text-main);">${shop.name}</span>
-        <span style="font-size:12px; font-weight:500; color:var(--text-muted);">${shop.pending} pending</span>
-      </div>
-      <div style="width:100%; height:5px; background:var(--border-color); border-radius:3px; overflow:hidden;">
-        <div style="width:${shop.pending > 0 ? (fraction * 100) + '%' : '14px'}; height:100%; background:var(--accent-steel); border-radius:3px; transition:width 0.4s ease;"></div>
-      </div>
-    `;
-    barsEl.appendChild(barEl);
-  });
+  if (shopPendingData.length === 0) {
+    barsEl.innerHTML = `<div style="text-align:center; padding:16px 0; color:var(--text-muted); font-size:13px;">No workshop branches found</div>`;
+  } else {
+    shopPendingData.forEach(shop => {
+      const fraction = shop.pending > 0 ? Math.min(1, Math.max(0.08, shop.pending / maxPending)) : 0;
+      const barEl = document.createElement('div');
+      barEl.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+          <span style="font-size:13.5px; font-weight:600; color:var(--text-main);">${shop.name}</span>
+          <span style="font-size:12px; font-weight:500; color:var(--text-muted);">${shop.pending} pending</span>
+        </div>
+        <div style="width:100%; height:5px; background:var(--border-color); border-radius:3px; overflow:hidden;">
+          <div style="width:${shop.pending > 0 ? (fraction * 100) + '%' : '14px'}; height:100%; background:var(--accent-steel); border-radius:3px; transition:width 0.4s ease;"></div>
+        </div>
+      `;
+      barsEl.appendChild(barEl);
+    });
+  }
 
   // Event listeners
   container.querySelector('#dash-profile-btn')?.addEventListener('click', () => router.navigate('/profile'));

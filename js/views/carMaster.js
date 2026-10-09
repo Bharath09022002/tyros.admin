@@ -71,7 +71,7 @@ export async function renderCarMaster(router) {
     if (currentTab === 'brands') {
       const filtered = brands.filter(b => b.name.toLowerCase().includes(q));
       if (filtered.length === 0) {
-        listEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">No car brands found matching "${searchQuery}"</div>`;
+        listEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">${searchQuery ? `No car brands found matching "${searchQuery}"` : 'No car brands found in database.<br><span style="font-size:12px; margin-top:6px; display:inline-block;">Tap <b>+ Add Brand</b> to register a car manufacturer.</span>'}</div>`;
         return;
       }
 
@@ -145,7 +145,7 @@ export async function renderCarMaster(router) {
       // Models tab
       const filtered = models.filter(m => m.name.toLowerCase().includes(q) || (m.brandName && m.brandName.toLowerCase().includes(q)));
       if (filtered.length === 0) {
-        listEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">No car models found matching "${searchQuery}"</div>`;
+        listEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">${searchQuery ? `No car models found matching "${searchQuery}"` : 'No car models found in database.<br><span style="font-size:12px; margin-top:6px; display:inline-block;">Tap <b>+ Add Model</b> to register a vehicle model.</span>'}</div>`;
         return;
       }
 

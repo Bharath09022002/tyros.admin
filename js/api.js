@@ -92,14 +92,6 @@ class ApiClientClass {
     };
 
     const token = this.getToken();
-    if (!options.skipAuth && this.isDemoToken(token)) {
-      // Local demo session - avoid spamming remote backend with invalid tokens
-      const err = new Error('DEMO_SESSION_LOCAL_ONLY');
-      err.status = 401;
-      err.isDemo = true;
-      throw err;
-    }
-
     if (token && !options.skipAuth) {
       headers['Authorization'] = `Bearer ${token}`;
     }

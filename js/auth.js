@@ -70,7 +70,7 @@ class AuthManager {
       throw new Error('Please enter your password.');
     }
 
-    // 1. Attempt Real Backend API Authentication
+    // Direct Live Backend Authentication
     try {
       const res = await ApiClient.post('/auth/login', {
         phone: cleanPhone,
@@ -78,41 +78,20 @@ class AuthManager {
       }, { skipAuth: true });
 
       const data = res?.data || res;
-      if (data && (data.token || res.token)) {
-        const token = data.token || res.token;
-        const user = data.user || data;
+      const token = data?.token || res?.token;
+      const user = data?.user || res?.user || data;
 
+      if (token && user) {
         ApiClient.setToken(token);
         this.setSession(user);
-        return { success: true, user, isDemo: false };
+        return { success: true, user, token };
       }
+
+      throw new Error(res?.message || 'Login failed. Invalid response from server.');
     } catch (apiError) {
-      console.warn('[Auth] Remote login rejected or timed out:', apiError.message);
+      const msg = apiError?.data?.message || apiError?.message || 'Invalid phone number or password.';
+      throw new Error(msg);
     }
-
-    // 2. Demo Seed Credentials Fallback (so app is 100% testable right away)
-    const seedUsers = await Store.getUsers();
-    let matchedUser = seedUsers.find(u => u.phone === cleanPhone);
-
-    if (!matchedUser) {
-      matchedUser = {
-        id: `user-${cleanPhone}`,
-        name: cleanPhone === '9876543203' ? 'Bharath' : 'Admin',
-        fullName: cleanPhone === '9876543203' ? 'Bharath' : 'Workshop Admin',
-        phone: cleanPhone,
-        role: 'ADMIN',
-        assignedShopIds: ['shop-flare', 'shop-point', 'shop-tyros', 'shop-bharath'],
-        isActive: true
-      };
-    }
-
-    if (matchedUser) {
-      ApiClient.setToken(`user-token-${Date.now()}`);
-      this.setSession(matchedUser);
-      return { success: true, user: matchedUser, isDemo: true };
-    }
-
-    throw new Error('Invalid phone number or password. Please check your credentials.');
   }
 
   setSession(user) {

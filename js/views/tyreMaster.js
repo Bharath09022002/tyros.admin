@@ -62,7 +62,7 @@ export async function renderTyreMaster(router) {
     if (currentTab === 'sizes') {
       const filtered = sizes.filter(s => s.size.toLowerCase().includes(q));
       if (filtered.length === 0) {
-        listEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">No tyre sizes found matching "${searchQuery}"</div>`;
+        listEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">${searchQuery ? `No tyre sizes found matching "${searchQuery}"` : 'No tyre sizes found in database.<br><span style="font-size:12px; margin-top:6px; display:inline-block;">Tap <b>+ Add Size</b> to add your first specification.</span>'}</div>`;
         return;
       }
 
@@ -133,7 +133,7 @@ export async function renderTyreMaster(router) {
       // Brands tab
       const filtered = brands.filter(b => b.name.toLowerCase().includes(q));
       if (filtered.length === 0) {
-        listEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">No tyre brands found matching "${searchQuery}"</div>`;
+        listEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">${searchQuery ? `No tyre brands found matching "${searchQuery}"` : 'No tyre brands found in database.<br><span style="font-size:12px; margin-top:6px; display:inline-block;">Tap <b>+ Add Brand</b> to register a tyre brand.</span>'}</div>`;
         return;
       }
 
