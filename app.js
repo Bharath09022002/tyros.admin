@@ -11,6 +11,9 @@ import { renderEntryDetail } from './js/views/entryDetail.js';
 import { renderAdminReports } from './js/views/adminReports.js';
 import { renderManage } from './js/views/manage.js';
 import { renderProfile } from './js/views/profile.js';
+import { renderTyreMaster } from './js/views/tyreMaster.js';
+import { renderCarMaster } from './js/views/carMaster.js';
+import { renderTargets } from './js/views/targets.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const router = new Router();
@@ -23,6 +26,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   router.addRoute('/reports', renderAdminReports);
   router.addRoute('/manage', renderManage);
   router.addRoute('/profile', renderProfile);
+  router.addRoute('/tyre-master', renderTyreMaster);
+  router.addRoute('/car-master', renderCarMaster);
+  router.addRoute('/targets', renderTargets);
 
   // Bottom Navigation Click Handlers
   document.querySelectorAll('#bottom-nav .nav-item').forEach(item => {

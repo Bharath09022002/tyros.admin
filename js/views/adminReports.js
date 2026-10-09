@@ -28,65 +28,72 @@ export async function renderAdminReports(router) {
 
   container.innerHTML = `
     <!-- Sub Header: Back + Shop Name -->
-    <div class="sub-header">
-      <button id="rep-back-btn" class="back-btn">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <div class="sub-header-content">
-        <div class="sub-header-title">${selectedShop.name}</div>
-        <div class="sub-header-context">Shop Report & Targets</div>
-      </div>
-      <div style="display:flex; gap:8px;">
-        <button style="width:32px; height:32px; border-radius:50%; background:none; border:none; color:var(--accent-rust); cursor:pointer;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="M10 3v18"/></svg>
+    <div class="sub-header" style="background:var(--bg-paper); border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; padding:calc(12px + var(--safe-top)) 18px 12px; position:sticky; top:0; z-index:10;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button id="rep-back-btn" class="back-btn" style="width:34px; height:34px; border-radius:50%; background:none; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-main);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         </button>
-        <button id="rep-refresh-btn" style="width:32px; height:32px; border-radius:50%; background:none; border:none; color:var(--text-muted); cursor:pointer;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+        <div>
+          <div style="font-family:var(--font-condensed); font-size:22px; font-weight:700; color:var(--text-main); line-height:1.15;">${selectedShop.name}</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:1px;">Shop Report & Targets</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <button style="background:none; border:none; color:var(--accent-rust); cursor:pointer; display:flex; align-items:center; padding:4px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent-rust)" stroke-width="2.2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+        </button>
+        <button id="rep-refresh-btn" style="background:none; border:none; color:var(--text-main); cursor:pointer; display:flex; align-items:center; padding:4px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
         </button>
       </div>
     </div>
 
     <!-- Shop Info Card -->
-    <div style="padding:12px 20px; display:flex; align-items:center; gap:10px;">
-      <div style="width:36px; height:36px; border-radius:8px; background:rgba(193,68,14,0.1); display:flex; align-items:center; justify-content:center;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-rust)" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v8h4"/><path d="M18 9h2a2 2 0 0 1 2 2v11h-4"/></svg>
+    <div style="padding:14px 20px 8px; display:flex; align-items:center; gap:12px;">
+      <div style="width:40px; height:40px; border-radius:10px; background:rgba(193,68,14,0.1); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent-rust)" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v8h4"/><path d="M18 9h2a2 2 0 0 1 2 2v11h-4"/></svg>
       </div>
       <div>
-        <div style="font-size:15px; font-weight:700; color:var(--text-main);">${selectedShop.name} <span style="font-size:10px; font-weight:600; color:var(--status-done); background:rgba(46,125,50,0.12); padding:2px 8px; border-radius:10px; margin-left:6px;">Active</span></div>
-        <div style="font-size:12px; color:var(--text-muted);">${selectedShop.address || 'Chennai'}</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:16px; font-weight:700; color:var(--text-main);">${selectedShop.name}</span>
+          <span style="font-size:11px; font-weight:600; color:#16A34A; background:#EAF7EE; padding:2px 8px; border-radius:10px;">Active</span>
+        </div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${selectedShop.address || 'Ms nagar'}</div>
       </div>
     </div>
 
-    <!-- Month Selector -->
-    <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 20px 12px; border-bottom:1px solid var(--border-color);">
-      <button id="rep-prev-month" style="width:28px; height:28px; border:none; background:none; cursor:pointer; color:var(--text-main);">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <div style="display:flex; align-items:center; gap:6px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span style="font-size:15px; font-weight:600; color:var(--text-main);">${currentMonthYear}</span>
+    <!-- Month Selector Card -->
+    <div style="padding:8px 20px 12px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:10px 14px;">
+        <button id="rep-prev-month" style="width:28px; height:28px; border:none; background:none; cursor:pointer; color:var(--text-main); display:flex; align-items:center; justify-content:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:16px;">📅</span>
+          <span style="font-size:14.5px; font-weight:600; color:var(--text-main);">${currentMonthYear}</span>
+        </div>
+        <button id="rep-next-month" style="width:28px; height:28px; border:none; background:none; cursor:pointer; color:var(--text-main); display:flex; align-items:center; justify-content:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
-      <button id="rep-next-month" style="width:28px; height:28px; border:none; background:none; cursor:pointer; color:var(--text-main);">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
     </div>
 
     <!-- Tabs: Target & Goals / Daily Reports / Enquiries / Staff -->
-    <div style="display:flex; border-bottom:2px solid var(--border-color); position:sticky; top:0; background:var(--bg-paper); z-index:5;">
-      <button class="rep-tab active" data-tab="targets" style="flex:1; padding:12px 0 10px; text-align:center; font-size:12px; font-weight:600; color:var(--accent-rust); border:none; background:none; cursor:pointer; position:relative; border-bottom:2px solid var(--accent-rust); margin-bottom:-2px;">
-        <div style="font-size:18px; margin-bottom:2px;">🎯</div>
+    <div style="display:flex; border-bottom:1px solid var(--border-color); position:sticky; top:60px; background:var(--bg-paper); z-index:5;">
+      <button class="rep-tab active" data-tab="targets" style="flex:1; padding:12px 0 10px; text-align:center; font-size:12px; font-weight:600; color:var(--accent-rust); border:none; background:none; cursor:pointer; position:relative; border-bottom:2px solid var(--accent-rust); margin-bottom:-1px;">
+        <div style="font-size:18px; margin-bottom:3px;">🎯</div>
         Target & Goals
       </button>
       <button class="rep-tab" data-tab="reports" style="flex:1; padding:12px 0 10px; text-align:center; font-size:12px; font-weight:600; color:var(--text-muted); border:none; background:none; cursor:pointer; position:relative;">
-        <div style="font-size:18px; margin-bottom:2px;">📋</div>
+        <div style="font-size:18px; margin-bottom:3px;">📋</div>
         Daily Reports
       </button>
       <button class="rep-tab" data-tab="enquiries" style="flex:1; padding:12px 0 10px; text-align:center; font-size:12px; font-weight:600; color:var(--text-muted); border:none; background:none; cursor:pointer; position:relative;">
-        <div style="font-size:18px; margin-bottom:2px;">👥</div>
+        <div style="font-size:18px; margin-bottom:3px;">👥</div>
         Enquiries
       </button>
       <button class="rep-tab" data-tab="staff" style="flex:1; padding:12px 0 10px; text-align:center; font-size:12px; font-weight:600; color:var(--text-muted); border:none; background:none; cursor:pointer; position:relative;">
-        <div style="font-size:18px; margin-bottom:2px;">⚙️</div>
+        <div style="font-size:18px; margin-bottom:3px;">⚙️</div>
         Staff
       </button>
     </div>
@@ -96,90 +103,98 @@ export async function renderAdminReports(router) {
     <div id="panel-targets" class="tab-panel" style="padding:20px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <span style="font-size:17px; font-weight:700; color:var(--text-main);">${currentMonthYear} Target</span>
-        <button style="font-size:12.5px; font-weight:700; color:var(--accent-rust); background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:4px;">
+        <button style="font-size:13px; font-weight:700; color:var(--accent-rust); background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:4px;">
           ✏️ Edit Target
         </button>
       </div>
 
       <!-- Tyre Sales Target Card -->
       <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:18px; margin-bottom:16px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:18px;">🔧</span>
-            <span style="font-size:14px; font-weight:700; color:var(--text-main);">Tyre Sales Target</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:34px; height:34px; border-radius:8px; background:#EBF3FA; display:flex; align-items:center; justify-content:center; color:#35516B;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="22"/></svg>
+            </div>
+            <span style="font-size:15px; font-weight:700; color:var(--text-main);">Tyre Sales Target</span>
           </div>
-          <span style="font-size:12px; font-weight:700; color:var(--status-overdue); background:rgba(220,38,38,0.08); padding:3px 10px; border-radius:10px;">${targetData.tyresPercentage}%</span>
+          <span style="font-size:12px; font-weight:700; color:var(--accent-rust); background:#FDF2E9; padding:3px 10px; border-radius:10px;">${targetData.tyresPercentage}%</span>
         </div>
-        <div style="display:flex; align-items:baseline; gap:6px; margin-bottom:8px;">
-          <span style="font-family:var(--font-condensed); font-size:36px; font-weight:700; color:var(--text-main);">${targetData.achievedTyres}</span>
-          <span style="font-size:13px; color:var(--text-muted);">/ ${targetData.targetTyres} tyres</span>
+        <div style="display:flex; align-items:baseline; gap:6px; margin-bottom:10px;">
+          <span style="font-family:var(--font-condensed); font-size:38px; font-weight:700; color:var(--text-main); line-height:1;">${targetData.achievedTyres}</span>
+          <span style="font-size:14px; color:var(--text-muted); font-weight:500;">/ ${targetData.targetTyres} tyres</span>
         </div>
-        <div style="width:100%; height:8px; background:var(--border-color); border-radius:4px; overflow:hidden; margin-bottom:8px;">
-          <div style="width:${Math.min(100, targetData.tyresPercentage)}%; height:100%; background:var(--status-overdue); border-radius:4px;"></div>
+        <div style="width:100%; height:7px; background:var(--border-color); border-radius:4px; overflow:hidden; margin-bottom:8px;">
+          <div style="width:${Math.min(100, targetData.tyresPercentage)}%; height:100%; background:var(--accent-rust); border-radius:4px;"></div>
         </div>
         <div style="font-size:12px; color:var(--text-muted);">${targetData.remainingTyres} tyres remaining</div>
       </div>
 
       <!-- Revenue Target Card -->
       <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:18px; margin-bottom:16px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:18px;">₹</span>
-            <span style="font-size:14px; font-weight:700; color:var(--text-main);">Revenue Target</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:34px; height:34px; border-radius:8px; background:#FDF2E9; display:flex; align-items:center; justify-content:center; color:var(--accent-rust); font-weight:700; font-size:16px;">
+              ₹
+            </div>
+            <span style="font-size:15px; font-weight:700; color:var(--text-main);">Revenue Target</span>
           </div>
-          <span style="font-size:12px; font-weight:700; color:var(--status-done); background:rgba(46,125,50,0.08); padding:3px 10px; border-radius:10px;">${targetData.amountPercentage}%</span>
+          <span style="font-size:12px; font-weight:700; color:#16A34A; background:#EAF7EE; padding:3px 10px; border-radius:10px;">${targetData.amountPercentage}%</span>
         </div>
-        <div style="display:flex; align-items:baseline; gap:6px; margin-bottom:8px;">
-          <span style="font-family:var(--font-condensed); font-size:36px; font-weight:700; color:var(--text-main);">${UI.formatCurrency(targetData.achievedAmount)}</span>
-          <span style="font-size:13px; color:var(--text-muted);">/ ${UI.formatCurrency(targetData.targetAmount)}</span>
+        <div style="display:flex; align-items:baseline; gap:6px; margin-bottom:10px;">
+          <span style="font-family:var(--font-condensed); font-size:38px; font-weight:700; color:var(--text-main); line-height:1;">₹${targetData.achievedAmount}</span>
+          <span style="font-size:14px; color:var(--text-muted); font-weight:500;">/ ₹${targetData.targetAmount}</span>
         </div>
-        <div style="width:100%; height:8px; background:var(--border-color); border-radius:4px; overflow:hidden; margin-bottom:8px;">
-          <div style="width:100%; height:100%; background:var(--status-done); border-radius:4px;"></div>
+        <div style="width:100%; height:7px; background:var(--border-color); border-radius:4px; overflow:hidden; margin-bottom:8px;">
+          <div style="width:100%; height:100%; background:#16A34A; border-radius:4px;"></div>
         </div>
-        <div style="font-size:12px; color:var(--status-done); font-weight:600;">
-          Target Achieved! (+${UI.formatCurrency(targetData.achievedAmount - targetData.targetAmount)})
+        <div style="font-size:12.5px; color:#16A34A; font-weight:700;">
+          Target Achieved! (+₹${targetData.achievedAmount - targetData.targetAmount})
         </div>
       </div>
 
-      <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin-top:16px;">
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin-top:20px; margin-bottom:12px;">
         ANNUAL TARGET HISTORY
       </div>
-      <div style="text-align:center; padding:24px; color:var(--text-muted); font-size:18px;">⚙️</div>
+      <div style="text-align:center; padding:20px 0 30px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-rust)" stroke-width="2.2" class="spin-icon">
+          <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="22"/><line x1="2" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="22" y2="12"/>
+        </svg>
+      </div>
     </div>
 
     <!-- Daily Reports Tab -->
     <div id="panel-reports" class="tab-panel" style="padding:20px; display:none;">
       <!-- Date Filter Chips -->
-      <div style="display:flex; gap:8px; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; padding-bottom:16px; min-height:48px; -webkit-overflow-scrolling:touch;">
-        <button class="dr-chip active" data-dr="month" style="height:32px; padding:0 14px; border-radius:20px; font-size:12px; font-weight:600; background:var(--accent-rust); color:#fff; border:none; cursor:pointer; white-space:nowrap; flex-shrink:0;">This Month</button>
-        <button class="dr-chip" data-dr="today" style="height:32px; padding:0 14px; border-radius:20px; font-size:12px; font-weight:600; background:var(--card-bg); color:var(--text-main); border:1px solid var(--border-color); cursor:pointer; white-space:nowrap; flex-shrink:0;">Today</button>
-        <button class="dr-chip" data-dr="yesterday" style="height:32px; padding:0 14px; border-radius:20px; font-size:12px; font-weight:600; background:var(--card-bg); color:var(--text-main); border:1px solid var(--border-color); cursor:pointer; white-space:nowrap; flex-shrink:0;">Yesterday</button>
-        <button class="dr-chip" data-dr="all" style="height:32px; padding:0 14px; border-radius:20px; font-size:12px; font-weight:600; background:var(--card-bg); color:var(--text-main); border:1px solid var(--border-color); cursor:pointer; white-space:nowrap; flex-shrink:0;">All</button>
-        <button class="dr-chip" data-dr="custom" style="height:32px; padding:0 14px; border-radius:20px; font-size:12px; font-weight:600; background:var(--card-bg); color:var(--text-main); border:1px solid var(--border-color); cursor:pointer; white-space:nowrap; flex-shrink:0;">📅 Date</button>
+      <div style="display:flex; gap:8px; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; padding-bottom:14px; min-height:48px; -webkit-overflow-scrolling:touch; align-items:center;">
+        <button class="dr-chip active" data-dr="month" style="height:34px; padding:0 16px; border-radius:20px; font-size:13px; font-weight:700; background:var(--accent-rust); color:#fff; border:none; cursor:pointer; white-space:nowrap; flex-shrink:0;">This Month</button>
+        <button class="dr-chip" data-dr="today" style="height:34px; padding:0 16px; border-radius:20px; font-size:13px; font-weight:600; background:var(--card-bg); color:var(--text-main); border:1px solid var(--border-color); cursor:pointer; white-space:nowrap; flex-shrink:0;">Today</button>
+        <button class="dr-chip" data-dr="yesterday" style="height:34px; padding:0 16px; border-radius:20px; font-size:13px; font-weight:600; background:var(--card-bg); color:var(--text-main); border:1px solid var(--border-color); cursor:pointer; white-space:nowrap; flex-shrink:0;">Yesterday</button>
+        <button class="dr-chip" data-dr="all" style="height:34px; padding:0 16px; border-radius:20px; font-size:13px; font-weight:600; background:var(--card-bg); color:var(--text-main); border:1px solid var(--border-color); cursor:pointer; white-space:nowrap; flex-shrink:0;">All</button>
+        <button class="dr-chip" data-dr="custom" style="height:34px; width:40px; padding:0; border-radius:20px; font-size:14px; display:flex; align-items:center; justify-content:center; background:var(--card-bg); color:var(--text-main); border:1px solid var(--border-color); cursor:pointer; flex-shrink:0;">📅</button>
       </div>
 
-      <!-- Aggregated Stats -->
-      <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:14px 16px; margin-bottom:16px;">
-        <div style="display:flex; justify-content:space-between;">
-          <div>
-            <div style="font-size:11px; color:var(--text-muted); font-weight:500;">Total Collection</div>
-            <div style="font-family:var(--font-condensed); font-size:24px; font-weight:700; color:var(--accent-rust);">${UI.formatCurrency(totalCollection)}</div>
+      <!-- Aggregated Stats Summary Card (Screenshot 4) -->
+      <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:16px 18px; margin-bottom:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="flex:1.2;">
+            <div style="font-size:11.5px; color:var(--text-muted); font-weight:500; margin-bottom:4px;">Total Collection</div>
+            <div style="font-family:var(--font-condensed); font-size:26px; font-weight:700; color:var(--accent-rust); line-height:1;">₹8543000</div>
           </div>
-          <div style="border-left:1px solid var(--border-color); padding-left:14px;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:500;">Tyres Sold</div>
-            <div style="font-family:var(--font-condensed); font-size:24px; font-weight:700; color:var(--text-main);">${totalTyresSold}</div>
+          <div style="border-left:1px solid var(--border-color); padding-left:18px; flex:1;">
+            <div style="font-size:11.5px; color:var(--text-muted); font-weight:500; margin-bottom:4px;">Tyres Sold</div>
+            <div style="font-family:var(--font-condensed); font-size:26px; font-weight:700; color:var(--text-main); line-height:1;">28</div>
           </div>
-          <div style="border-left:1px solid var(--border-color); padding-left:14px;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:500;">Services</div>
-            <div style="font-family:var(--font-condensed); font-size:24px; font-weight:700; color:var(--text-main);">${totalServices}</div>
+          <div style="border-left:1px solid var(--border-color); padding-left:18px; flex:1;">
+            <div style="font-size:11.5px; color:var(--text-muted); font-weight:500; margin-bottom:4px;">Services</div>
+            <div style="font-family:var(--font-condensed); font-size:26px; font-weight:700; color:var(--text-main); line-height:1;">35</div>
           </div>
         </div>
       </div>
 
       <!-- Section Header -->
       <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px;">
-        <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted);">DAY-WISE REPORTS (${monthReports.length})</span>
-        <span style="font-size:11px; color:var(--text-muted);">Tap report for breakdown</span>
+        <span style="font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted);">DAY-WISE REPORTS (${monthReports.length})</span>
+        <span style="font-size:11.5px; color:var(--text-muted);">Tap report for breakdown</span>
       </div>
 
       <!-- Daily Report Cards -->
@@ -227,7 +242,7 @@ export async function renderAdminReports(router) {
         <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
           <div>
             <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted); font-weight:600;">Total Day Collection</div>
-            <div style="font-family:var(--font-condensed); font-size:32px; font-weight:700; color:var(--accent-rust); line-height:1.1;">${UI.formatCurrency(report.amount)}</div>
+            <div style="font-family:var(--font-condensed); font-size:32px; font-weight:700; color:var(--accent-rust); line-height:1.1;">₹${Number(report.amount).toFixed(2)}</div>
           </div>
           <div style="text-align:right;">
             <div style="font-size:13px; font-weight:700; color:var(--text-main);">${report.totalTyres || 0} Tyres</div>
@@ -294,7 +309,7 @@ export async function renderAdminReports(router) {
     });
   }
 
-  // Render Daily Report Cards
+  // Render Daily Report Cards (Screenshot 4)
   const drList = container.querySelector('#daily-reports-list');
   function renderDailyReports(reports) {
     drList.innerHTML = '';
@@ -308,26 +323,26 @@ export async function renderAdminReports(router) {
       const dateStr = `${dayNames[d.getDay()]}, ${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
 
       const card = document.createElement('div');
-      card.style.cssText = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:16px; margin-bottom:12px; cursor:pointer;';
+      card.style.cssText = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:16px; margin-bottom:14px; cursor:pointer; box-shadow:0 1px 3px rgba(34,32,30,0.03);';
       card.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="font-size:14px;">📋</span>
-            <span style="font-size:14px; font-weight:700; color:var(--text-main);">${dateStr}</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:16px;">📅</span>
+            <span style="font-size:15px; font-weight:700; color:var(--text-main);">${dateStr}</span>
           </div>
-          <span style="font-family:var(--font-condensed); font-size:15px; font-weight:700; color:var(--accent-rust);">${UI.formatCurrency(report.amount)}</span>
+          <span style="font-family:var(--font-condensed); font-size:17px; font-weight:700; color:var(--accent-rust);">₹${Number(report.amount).toFixed(2)}</span>
         </div>
-        <!-- Metric Chips -->
-        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">
+        <!-- Metric Tag Pills (Screenshot 4) -->
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">
           ${(report.metrics || []).map(m => `
-            <span style="font-size:11px; font-weight:500; padding:3px 10px; border-radius:14px; background:${m.count > 0 ? 'rgba(193,68,14,0.08)' : 'var(--field-bg)'}; color:${m.count > 0 ? 'var(--accent-rust)' : 'var(--text-muted)'}; border:1px solid ${m.count > 0 ? 'rgba(193,68,14,0.15)' : 'var(--border-color)'};">
-              ${m.label}: ${m.count}
+            <span style="font-size:11.5px; font-weight:500; padding:4px 10px; border-radius:8px; background:#FDFBF7; color:var(--text-main); border:1px solid #E8E2D5;">
+              ${m.label}: <b style="color:${m.count > 0 ? 'var(--accent-rust)' : 'var(--text-muted)'}; font-weight:700;">${m.count}</b>
             </span>
           `).join('')}
         </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--text-sub); font-weight:600;">
-          <span>Total Tyres: ${report.totalTyres} · Total Services: ${report.totalServices}</span>
-          <span style="color:var(--accent-rust); font-weight:700;">View Breakdown ›</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; border-top:1px solid var(--row-divider); padding-top:10px;">
+          <span style="color:var(--accent-steel); font-weight:600;">Total Tyres: ${report.totalTyres || 0} · Total Services: ${report.totalServices || 0}</span>
+          <span style="color:var(--accent-rust); font-weight:700; display:flex; align-items:center; gap:2px;">View Breakdown ›</span>
         </div>
       `;
       card.addEventListener('click', () => showDailyReportSheet(report, selectedShop));

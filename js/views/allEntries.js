@@ -70,7 +70,7 @@ export async function renderAllEntries(router, params) {
         <span style="position:absolute; left:12px; top:12px; color:var(--text-muted); display:flex; align-items:center;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </span>
-        <input type="text" id="entries-search" class="form-input" placeholder="Search customer, phone, car..." style="padding-left:38px; height:44px; border-radius:12px; font-size:13.5px;">
+        <input type="text" id="entries-search" class="form-input" placeholder="Search customer, phone..." style="padding-left:38px; height:44px; border-radius:12px; font-size:13.5px;">
       </div>
       <button id="entries-excel-btn" style="height:44px; padding:0 14px; background:rgba(16,124,65,0.08); border:1px solid rgba(16,124,65,0.25); border-radius:12px; display:flex; align-items:center; gap:6px; cursor:pointer; color:#107C41; font-weight:700; font-size:13px; flex-shrink:0;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
