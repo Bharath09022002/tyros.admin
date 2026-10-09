@@ -26,7 +26,7 @@ export class Router {
   }
 
   async handleRouting() {
-    let hash = window.location.hash.slice(1) || '/dashboard';
+    let hash = window.location.hash.slice(1);
     const queryIdx = hash.indexOf('?');
     let queryParams = {};
     if (queryIdx !== -1) {
@@ -35,15 +35,13 @@ export class Router {
       hash = hash.slice(0, queryIdx);
     }
 
+    if (!hash || hash === '/') {
+      hash = Auth.isAuthenticated() ? '/dashboard' : '/login';
+    }
+
     // Auth Guard: redirect to login if not authenticated
     if (!Auth.isAuthenticated() && hash !== '/login') {
       window.location.hash = '/login';
-      return;
-    }
-
-    // If authenticated and tries to visit /login, redirect to dashboard
-    if (Auth.isAuthenticated() && hash === '/login') {
-      window.location.hash = '/dashboard';
       return;
     }
 

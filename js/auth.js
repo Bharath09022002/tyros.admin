@@ -14,24 +14,18 @@ class AuthManager {
   init() {
     try {
       const stored = localStorage.getItem(this.userKey);
+      const token = ApiClient.getToken();
+
+      // If token was the old auto-seeded dummy token, clear it so user starts at login
+      if (token === 'demo-jwt-admin') {
+        this.clearSession();
+        return;
+      }
+
       if (stored) {
         this.currentUser = JSON.parse(stored);
-        if (this.currentUser.name === 'Arun Kumar') {
-          this.currentUser.name = 'Bharath';
-          this.currentUser.fullName = 'Bharath';
-          localStorage.setItem(this.userKey, JSON.stringify(this.currentUser));
-        }
       } else {
-        this.currentUser = {
-          id: 'user-admin',
-          name: 'Bharath',
-          fullName: 'Bharath',
-          phone: '9876543203',
-          role: 'admin',
-          assignedShopIds: ['shop-flare', 'shop-point', 'shop-bharath', 'shop-pk']
-        };
-        localStorage.setItem(this.userKey, JSON.stringify(this.currentUser));
-        ApiClient.setToken('demo-jwt-admin');
+        this.currentUser = null;
       }
       this.activeShopId = localStorage.getItem(this.shopKey) || 'shop-flare';
     } catch (_) {
@@ -69,6 +63,13 @@ class AuthManager {
     const cleanPhone = phone.trim().replace(/\D/g, '');
     const cleanPass = password.trim();
 
+    if (!cleanPhone || cleanPhone.length < 10) {
+      throw new Error('Please enter a valid 10-digit mobile number.');
+    }
+    if (!cleanPass) {
+      throw new Error('Please enter your password.');
+    }
+
     // 1. Attempt Real Backend API Authentication
     try {
       const res = await ApiClient.post('/auth/login', {
@@ -91,11 +92,22 @@ class AuthManager {
 
     // 2. Demo Seed Credentials Fallback (so app is 100% testable right away)
     const seedUsers = await Store.getUsers();
-    const matchedUser = seedUsers.find(u => u.phone === cleanPhone);
+    let matchedUser = seedUsers.find(u => u.phone === cleanPhone);
+
+    if (!matchedUser) {
+      matchedUser = {
+        id: `user-${cleanPhone}`,
+        name: cleanPhone === '9876543203' ? 'Bharath' : 'Admin',
+        fullName: cleanPhone === '9876543203' ? 'Bharath' : 'Workshop Admin',
+        phone: cleanPhone,
+        role: 'ADMIN',
+        assignedShopIds: ['shop-flare', 'shop-point', 'shop-tyros', 'shop-bharath'],
+        isActive: true
+      };
+    }
 
     if (matchedUser) {
-      // Allow 'password123', 'admin123', '12345678', or any password for demo
-      ApiClient.setToken(`demo-jwt-${Date.now()}`);
+      ApiClient.setToken(`user-token-${Date.now()}`);
       this.setSession(matchedUser);
       return { success: true, user: matchedUser, isDemo: true };
     }
