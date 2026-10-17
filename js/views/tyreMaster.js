@@ -1,4 +1,4 @@
-// Tyre Master Screen matching Screenshot 3 exactly
+// Tyre Master Screen matching Flutter TyreMaster Screen with Sizes, Brands & Products
 import { Store } from '../store.js';
 import { UI } from '../ui.js';
 
@@ -6,15 +6,16 @@ export async function renderTyreMaster(router) {
   const container = document.createElement('div');
   container.className = 'view-screen';
 
-  let currentTab = 'sizes'; // 'sizes' | 'brands'
+  let currentTab = 'sizes'; // 'sizes' | 'brands' | 'products'
   let searchQuery = '';
 
   let sizes = await Store.getTyreSizes();
   let brands = await Store.getTyreBrands();
+  let products = await Store.getTyreProducts();
 
   function buildHtml() {
     return `
-      <!-- App Header matching Screenshot 3 -->
+      <!-- App Header -->
       <header class="master-header">
         <div class="master-header-left">
           <button id="tyre-back-btn" class="back-btn" style="background:none; border:none; padding:4px; cursor:pointer; color:var(--text-main); display:flex; align-items:center;">
@@ -24,19 +25,23 @@ export async function renderTyreMaster(router) {
         </div>
         <button id="tyre-header-add-btn" class="master-header-btn">
           <span style="font-size:16px; line-height:1;">+</span>
-          <span>${currentTab === 'sizes' ? 'Add Size' : 'Add Brand'}</span>
+          <span>${currentTab === 'sizes' ? 'Add Size' : (currentTab === 'brands' ? 'Add Brand' : 'Add Product')}</span>
         </button>
       </header>
 
-      <!-- Tabs Bar: Sizes (348) & Brands (22) -->
-      <div class="master-tabs-bar">
-        <button class="master-tab-btn ${currentTab === 'sizes' ? 'active' : ''}" data-tab="sizes">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+      <!-- Tabs Bar: Sizes, Brands, Products -->
+      <div class="master-tabs-bar" style="display:flex; gap:6px;">
+        <button class="master-tab-btn ${currentTab === 'sizes' ? 'active' : ''}" data-tab="sizes" style="flex:1;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
           Sizes (${sizes.length})
         </button>
-        <button class="master-tab-btn ${currentTab === 'brands' ? 'active' : ''}" data-tab="brands">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        <button class="master-tab-btn ${currentTab === 'brands' ? 'active' : ''}" data-tab="brands" style="flex:1;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
           Brands (${brands.length})
+        </button>
+        <button class="master-tab-btn ${currentTab === 'products' ? 'active' : ''}" data-tab="products" style="flex:1;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          Products (${products.length})
         </button>
       </div>
 
@@ -44,7 +49,7 @@ export async function renderTyreMaster(router) {
       <div class="master-search-row">
         <div class="master-search-box">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="tyre-search-input" placeholder="Search sizes or brands..." value="${searchQuery}">
+          <input type="text" id="tyre-search-input" placeholder="${currentTab === 'sizes' ? 'Search sizes...' : (currentTab === 'brands' ? 'Search brands...' : 'Search products...')}" value="${searchQuery}">
         </div>
       </div>
 
@@ -59,10 +64,11 @@ export async function renderTyreMaster(router) {
 
     const q = searchQuery.toLowerCase().trim();
 
+    // 1. SIZES TAB
     if (currentTab === 'sizes') {
       const filtered = sizes.filter(s => s.size.toLowerCase().includes(q));
       if (filtered.length === 0) {
-        listEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">${searchQuery ? `No tyre sizes found matching "${searchQuery}"` : 'No tyre sizes found in database.<br><span style="font-size:12px; margin-top:6px; display:inline-block;">Tap <b>+ Add Size</b> to add your first specification.</span>'}</div>`;
+        listEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">${searchQuery ? `No tyre sizes found matching "${searchQuery}"` : 'No tyre sizes found.<br><span style="font-size:12px; margin-top:6px; display:inline-block;">Tap <b>+ Add Size</b> to add specification.</span>'}</div>`;
         return;
       }
 
@@ -88,7 +94,6 @@ export async function renderTyreMaster(router) {
         </div>
       `).join('');
 
-      // Attach event listeners for size items
       listEl.querySelectorAll('.toggle-size-input').forEach(chk => {
         chk.addEventListener('change', async (e) => {
           const id = e.target.dataset.id;
@@ -108,7 +113,7 @@ export async function renderTyreMaster(router) {
             <h3 class="sheet-title">Edit Tyre Size</h3>
             <div class="form-group" style="margin: 0 0 16px;">
               <label class="form-label">Tyre Size Specification <span class="req">*</span></label>
-              <input type="text" id="edit-size-val" class="form-input" value="${item.size}" placeholder="e.g. 205/65R16" required>
+              <input type="text" id="edit-size-val" class="form-input" value="${item.size}" placeholder="e.g. 215/60 R16" required>
             </div>
             <div class="sheet-actions">
               <button class="btn-outline util-btn" style="justify-content:center; padding:10px;" onclick="UI.hideModal()">Cancel</button>
@@ -119,21 +124,27 @@ export async function renderTyreMaster(router) {
               sheet.querySelector('#save-size-btn').addEventListener('click', async () => {
                 const val = sheet.querySelector('#edit-size-val').value.trim();
                 if (!val) return UI.showToast('Please enter tyre size', 'error');
-                await Store.updateTyreSize(id, val);
-                sizes = await Store.getTyreSizes();
-                UI.hideModal();
-                UI.showToast(`Updated tyre size to ${val}`, 'success');
-                renderItems();
+                try {
+                  await Store.updateTyreSize(id, val);
+                  sizes = await Store.getTyreSizes();
+                  UI.hideModal();
+                  UI.showToast(`Updated tyre size to ${val}`, 'success');
+                  renderItems();
+                } catch (err) {
+                  UI.showToast(err.message || 'Failed to update size', 'error');
+                }
               });
             }
           });
         });
       });
-    } else {
-      // Brands tab
+    }
+
+    // 2. BRANDS TAB
+    else if (currentTab === 'brands') {
       const filtered = brands.filter(b => b.name.toLowerCase().includes(q));
       if (filtered.length === 0) {
-        listEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">${searchQuery ? `No tyre brands found matching "${searchQuery}"` : 'No tyre brands found in database.<br><span style="font-size:12px; margin-top:6px; display:inline-block;">Tap <b>+ Add Brand</b> to register a tyre brand.</span>'}</div>`;
+        listEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">${searchQuery ? `No tyre brands found matching "${searchQuery}"` : 'No tyre brands found.<br><span style="font-size:12px; margin-top:6px; display:inline-block;">Tap <b>+ Add Brand</b> to register brand.</span>'}</div>`;
         return;
       }
 
@@ -162,7 +173,6 @@ export async function renderTyreMaster(router) {
         </div>
       `).join('');
 
-      // Attach event listeners for brand items
       listEl.querySelectorAll('.toggle-brand-input').forEach(chk => {
         chk.addEventListener('change', async (e) => {
           const id = e.target.dataset.id;
@@ -193,14 +203,63 @@ export async function renderTyreMaster(router) {
               sheet.querySelector('#save-brand-btn').addEventListener('click', async () => {
                 const val = sheet.querySelector('#edit-brand-val').value.trim();
                 if (!val) return UI.showToast('Please enter brand name', 'error');
-                await Store.updateTyreBrand(id, val);
-                brands = await Store.getTyreBrands();
-                UI.hideModal();
-                UI.showToast(`Updated tyre brand to ${val}`, 'success');
-                renderItems();
+                try {
+                  await Store.updateTyreBrand(id, val);
+                  brands = await Store.getTyreBrands();
+                  UI.hideModal();
+                  UI.showToast(`Updated tyre brand to ${val}`, 'success');
+                  renderItems();
+                } catch (err) {
+                  UI.showToast(err.message || 'Failed to update brand', 'error');
+                }
               });
             }
           });
+        });
+      });
+    }
+
+    // 3. PRODUCTS TAB
+    else if (currentTab === 'products') {
+      const filtered = products.filter(p =>
+        (p.productName || '').toLowerCase().includes(q) ||
+        (p.tyreBrand || '').toLowerCase().includes(q) ||
+        (p.tyreSize || '').toLowerCase().includes(q)
+      );
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">${searchQuery ? `No tyre products found matching "${searchQuery}"` : 'No tyre products registered.<br><span style="font-size:12px; margin-top:6px; display:inline-block;">Tap <b>+ Add Product</b> to link sizes and brands.</span>'}</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(item => `
+        <div class="master-card" data-id="${item.id}">
+          <div class="master-card-left">
+            <div class="master-avatar-square" style="background:#F0FDF4; color:#16A34A;">
+              ₹
+            </div>
+            <div class="master-card-info">
+              <div class="master-card-title">${item.productName || 'Tyre Model'}</div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+                ${item.tyreBrand || ''} ${item.tyreSize ? `· ${item.tyreSize}` : ''} · <strong style="color:var(--accent-rust);">${UI.formatCurrency(item.price)}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="master-card-right">
+            <label class="switch-toggle">
+              <input type="checkbox" class="toggle-product-input" data-id="${item.id}" ${item.isActive ? 'checked' : ''}>
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </div>
+      `).join('');
+
+      listEl.querySelectorAll('.toggle-product-input').forEach(chk => {
+        chk.addEventListener('change', async (e) => {
+          const id = e.target.dataset.id;
+          await Store.toggleTyreProduct(id);
+          products = await Store.getTyreProducts();
+          renderItems();
         });
       });
     }
@@ -214,10 +273,10 @@ export async function renderTyreMaster(router) {
       if (currentTab === 'sizes') {
         UI.showModal(`
           <h3 class="sheet-title">Add Tyre Size</h3>
-          <p class="sheet-sub">Add a new tyre dimension specification to the catalog.</p>
+          <p class="sheet-sub">Add a new tyre dimension specification (e.g. 205/55 R16).</p>
           <div class="form-group" style="margin: 0 0 16px;">
             <label class="form-label">Tyre Size Specification <span class="req">*</span></label>
-            <input type="text" id="new-size-val" class="form-input" placeholder="e.g. 215/60R16" required>
+            <input type="text" id="new-size-val" class="form-input" placeholder="e.g. 205/55 R16" required>
           </div>
           <div class="sheet-actions">
             <button class="btn-outline util-btn" style="justify-content:center; padding:10px;" onclick="UI.hideModal()">Cancel</button>
@@ -228,23 +287,27 @@ export async function renderTyreMaster(router) {
             sheet.querySelector('#add-size-save-btn').addEventListener('click', async () => {
               const val = sheet.querySelector('#new-size-val').value.trim();
               if (!val) return UI.showToast('Please enter tyre size', 'error');
-              await Store.addTyreSize(val);
-              sizes = await Store.getTyreSizes();
-              UI.hideModal();
-              UI.showToast(`Added tyre size "${val}"`, 'success');
-              container.innerHTML = buildHtml();
-              setupEvents();
-              renderItems();
+              try {
+                await Store.addTyreSize(val);
+                sizes = await Store.getTyreSizes();
+                UI.hideModal();
+                UI.showToast(`Added tyre size "${val}"`, 'success');
+                container.innerHTML = buildHtml();
+                setupEvents();
+                renderItems();
+              } catch (err) {
+                UI.showToast(err.message || 'Failed to add size', 'error');
+              }
             });
           }
         });
-      } else {
+      } else if (currentTab === 'brands') {
         UI.showModal(`
           <h3 class="sheet-title">Add Tyre Brand</h3>
-          <p class="sheet-sub">Add a manufacturer tyre brand to the catalog.</p>
+          <p class="sheet-sub">Register a tyre manufacturer brand (e.g. Michelin).</p>
           <div class="form-group" style="margin: 0 0 16px;">
             <label class="form-label">Brand Name <span class="req">*</span></label>
-            <input type="text" id="new-brand-val" class="form-input" placeholder="e.g. Pirelli" required>
+            <input type="text" id="new-brand-val" class="form-input" placeholder="e.g. Michelin" required>
           </div>
           <div class="sheet-actions">
             <button class="btn-outline util-btn" style="justify-content:center; padding:10px;" onclick="UI.hideModal()">Cancel</button>
@@ -255,32 +318,100 @@ export async function renderTyreMaster(router) {
             sheet.querySelector('#add-brand-save-btn').addEventListener('click', async () => {
               const val = sheet.querySelector('#new-brand-val').value.trim();
               if (!val) return UI.showToast('Please enter brand name', 'error');
-              await Store.addTyreBrand(val);
-              brands = await Store.getTyreBrands();
-              UI.hideModal();
-              UI.showToast(`Added tyre brand "${val}"`, 'success');
-              container.innerHTML = buildHtml();
-              setupEvents();
-              renderItems();
+              try {
+                await Store.addTyreBrand(val);
+                brands = await Store.getTyreBrands();
+                UI.hideModal();
+                UI.showToast(`Added tyre brand "${val}"`, 'success');
+                container.innerHTML = buildHtml();
+                setupEvents();
+                renderItems();
+              } catch (err) {
+                UI.showToast(err.message || 'Failed to add brand', 'error');
+              }
+            });
+          }
+        });
+      } else if (currentTab === 'products') {
+        UI.showModal(`
+          <h3 class="sheet-title">Add Tyre Product</h3>
+          <p class="sheet-sub">Link a tyre size, brand, and vehicle category with pricing.</p>
+          <div class="form-group" style="margin: 0 0 12px;">
+            <label class="form-label">Product Name / Pattern <span class="req">*</span></label>
+            <input type="text" id="new-prod-name" class="form-input" placeholder="e.g. Primacy 4ST" required>
+          </div>
+          <div class="form-group" style="margin: 0 0 12px;">
+            <label class="form-label">Vehicle Type <span class="req">*</span></label>
+            <select id="new-prod-veh-type" class="form-select">
+              <option value="FOUR_WHEELER">Four Wheeler</option>
+              <option value="TWO_WHEELER">Two Wheeler</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin: 0 0 12px;">
+            <label class="form-label">Tyre Brand <span class="req">*</span></label>
+            <select id="new-prod-brand" class="form-select">
+              ${brands.map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group" style="margin: 0 0 12px;">
+            <label class="form-label">Tyre Size <span class="req">*</span></label>
+            <select id="new-prod-size" class="form-select">
+              ${sizes.map(s => `<option value="${s.id}">${s.size}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group" style="margin: 0 0 16px;">
+            <label class="form-label">Price ₹ <span class="req">*</span></label>
+            <input type="number" id="new-prod-price" class="form-input" placeholder="8500" required>
+          </div>
+          <div class="sheet-actions">
+            <button class="btn-outline util-btn" style="justify-content:center; padding:10px;" onclick="UI.hideModal()">Cancel</button>
+            <button id="add-prod-save-btn" class="btn-primary-cta" style="margin:0;">Create Product</button>
+          </div>
+        `, {
+          onMounted(sheet) {
+            sheet.querySelector('#add-prod-save-btn').addEventListener('click', async () => {
+              const productName = sheet.querySelector('#new-prod-name').value.trim();
+              const vehicleType = sheet.querySelector('#new-prod-veh-type').value;
+              const tyreBrandId = sheet.querySelector('#new-prod-brand').value;
+              const tyreSizeId = sheet.querySelector('#new-prod-size').value;
+              const price = parseFloat(sheet.querySelector('#new-prod-price').value) || 0;
+
+              if (!productName) return UI.showToast('Please enter product name', 'error');
+
+              try {
+                await Store.addTyreProduct({
+                  productName,
+                  vehicleType,
+                  tyreBrandId,
+                  tyreSizeId,
+                  price
+                });
+                products = await Store.getTyreProducts();
+                UI.hideModal();
+                UI.showToast(`Added product "${productName}"`, 'success');
+                container.innerHTML = buildHtml();
+                setupEvents();
+                renderItems();
+              } catch (err) {
+                UI.showToast(err.message || 'Failed to add tyre product', 'error');
+              }
             });
           }
         });
       }
     });
 
-    // Tab buttons
+    // Tab switching
     container.querySelectorAll('.master-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        container.querySelectorAll('.master-tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
         currentTab = btn.dataset.tab;
-        const addBtnSpan = container.querySelector('#tyre-header-add-btn span:last-child');
-        if (addBtnSpan) addBtnSpan.textContent = currentTab === 'sizes' ? 'Add Size' : 'Add Brand';
+        container.innerHTML = buildHtml();
+        setupEvents();
         renderItems();
       });
     });
 
-    // Search input
+    // Search filter
     container.querySelector('#tyre-search-input')?.addEventListener('input', (e) => {
       searchQuery = e.target.value;
       renderItems();
@@ -289,7 +420,7 @@ export async function renderTyreMaster(router) {
 
   container.innerHTML = buildHtml();
   setupEvents();
-  renderItems();
+  await renderItems();
 
   return container;
 }

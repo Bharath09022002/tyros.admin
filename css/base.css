@@ -1,0 +1,160 @@
+/* ==========================================================================
+   Tyros Admin - Base Styles (css/base.css)
+   Phase 1: Reset, iOS standards, accessible focus, scrollbars
+   ========================================================================== */
+
+/* 1. Global Box Sizing & Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 2. HTML & Body Root (iPhone 100dvh & Overscroll Containment) */
+html {
+  height: 100%;
+  height: 100dvh;
+  background-color: var(--bg-paper);
+  color-scheme: light dark;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--bg-paper);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-variant-numeric: tabular-nums;
+  overscroll-behavior-y: contain;
+}
+
+/* 3. Typography & Numerals */
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+p, span, div, a, button, input, select, textarea {
+  font-variant-numeric: tabular-nums;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 4. Accessible Focus States (Defect 3 Fixed: No raw rectangle, :focus-visible only) */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* 5. iPhone Touch & Tap Targets (>= 44x44px, pressed micro-feedback) */
+button, input, select, textarea, .tap-target {
+  font-family: inherit;
+  touch-action: manipulation;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Pressed scale state for interactive buttons */
+.btn-press,
+.tap-target,
+button:not(:disabled),
+.nav-tab-btn {
+  transition: transform var(--dur-tap) var(--ease-smooth), opacity var(--dur-tap) var(--ease-smooth), background-color var(--dur-tap) var(--ease-smooth);
+}
+
+.btn-press:active,
+button:not(:disabled):active,
+.tap-target:active {
+  transform: scale(0.97);
+  opacity: 0.92;
+}
+
+/* 6. Form Inputs (font-size >= 16px to prevent iOS auto-zoom) */
+input, select, textarea {
+  font-size: 16px !important; /* Critical for iPhone Safari */
+  min-height: 46px;
+  padding: 10px 14px;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+  transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* 7. Scrollbar Handling (Defect 4 Fixed: hidden on mobile, slim on desktop) */
+/* Mobile: hide scrollbar */
+@media (max-width: 1099px) {
+  ::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+}
+
+/* Desktop: slim elegant scrollbar */
+@media (min-width: 1100px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: var(--radius-pill);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--border-strong);
+  }
+}
+
+/* 8. Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

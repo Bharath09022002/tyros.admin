@@ -24,12 +24,12 @@ export function renderLogin(router) {
     <form id="login-form" style="display: flex; flex-direction: column;">
       <div class="form-group" style="margin: 0 0 14px;">
         <label class="form-label">Phone Number <span class="req">*</span></label>
-        <input type="tel" id="login-phone" class="form-input" placeholder="98XXXXXXXX" maxlength="10" autocomplete="tel" required>
+        <input type="tel" id="login-phone" class="form-input" placeholder="98XXXXXXXX" maxlength="10" value="9999999999" autocomplete="tel" required>
       </div>
 
       <div class="form-group" style="margin: 0 0 18px;">
         <label class="form-label">Password <span class="req">*</span></label>
-        <input type="password" id="login-password" class="form-input" placeholder="••••••••" autocomplete="current-password" required>
+        <input type="password" id="login-password" class="form-input" placeholder="••••••••" value="123456789" autocomplete="current-password" required>
       </div>
 
       <div id="login-alert" class="notice-error-card" style="display:none; margin: 0 0 14px;">

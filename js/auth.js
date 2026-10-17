@@ -1,62 +1,53 @@
-// Authentication & Session Management matching Flutter AuthProvider
+// Tyros Admin - Authentication Service (js/auth.js)
 import { ApiClient } from './api.js';
-import { Store } from './store.js';
+import { Toast } from './toast.js';
+
+const SESSION_KEY = 'tyros_admin_session';
 
 class AuthManager {
   constructor() {
-    this.userKey = 'tyros_auth_user';
-    this.shopKey = 'tyros_active_shop_id';
-    this.currentUser = null;
-    this.activeShopId = null;
+    this.token = null;
+    this.user = null;
     this.init();
   }
 
   init() {
     try {
-      const stored = localStorage.getItem(this.userKey);
-      const token = ApiClient.getToken();
-
-      // If token was the old auto-seeded dummy token, clear it so user starts at login
-      if (token === 'demo-jwt-admin') {
-        this.clearSession();
-        return;
-      }
-
+      const stored = sessionStorage.getItem(SESSION_KEY);
       if (stored) {
-        this.currentUser = JSON.parse(stored);
-      } else {
-        this.currentUser = null;
+        const parsed = JSON.parse(stored);
+        if (parsed.token && parsed.user) {
+          this.token = parsed.token;
+          this.user = parsed.user;
+          ApiClient.setToken(this.token);
+        }
       }
-      this.activeShopId = localStorage.getItem(this.shopKey) || 'shop-flare';
     } catch (_) {
       this.clearSession();
     }
+
+    // Listen for unauthorized 401 event dispatched by ApiClient
+    window.addEventListener('tyros:unauthorized', () => {
+      this.clearSession();
+      Toast.error('Session expired. Please log in again.');
+      window.location.hash = '#/login';
+    });
   }
 
   isAuthenticated() {
-    return !!this.currentUser;
+    return !!(this.token && this.user);
   }
 
   isAdmin() {
-    return this.currentUser?.role?.toLowerCase() === 'admin';
-  }
-
-  isEmployee() {
-    return this.currentUser?.role?.toLowerCase() === 'employee';
+    return this.user?.role?.toUpperCase() === 'ADMIN';
   }
 
   getUser() {
-    return this.currentUser;
+    return this.user;
   }
 
-  getActiveShopId() {
-    return this.activeShopId || 'shop-1';
-  }
-
-  setActiveShopId(shopId) {
-    this.activeShopId = shopId;
-    localStorage.setItem(this.shopKey, shopId);
-    window.dispatchEvent(new CustomEvent('tyros:shopChanged', { detail: { shopId } }));
+  getToken() {
+    return this.token;
   }
 
   async login(phone, password) {
@@ -70,65 +61,47 @@ class AuthManager {
       throw new Error('Please enter your password.');
     }
 
-    // Direct Live Backend Authentication
-    try {
-      const res = await ApiClient.post('/auth/login', {
-        phone: cleanPhone,
-        password: cleanPass
-      }, { skipAuth: true });
+    const res = await ApiClient.post('/auth/login', {
+      phone: cleanPhone,
+      password: cleanPass
+    }, { skipAuth: true });
 
-      const data = res?.data || res;
-      const token = data?.token || res?.token;
-      const user = data?.user || res?.user || data;
+    // Handle token returned either as data.token or data.data.token
+    const data = res?.data || res;
+    const token = data?.token || data?.tokens?.accessToken || res?.token;
+    const user = data?.user || res?.user || { phone: cleanPhone, fullName: 'Admin', role: 'ADMIN' };
 
-      if (token && user) {
-        ApiClient.setToken(token);
-        this.setSession(user);
-        return { success: true, user, token };
-      }
-
-      throw new Error(res?.message || 'Login failed. Invalid response from server.');
-    } catch (apiError) {
-      const msg = apiError?.data?.message || apiError?.message || 'Invalid phone number or password.';
-      throw new Error(msg);
-    }
-  }
-
-  setSession(user) {
-    this.currentUser = {
-      ...user,
-      role: (user.role || 'employee').toLowerCase(),
-      assignedShopIds: user.assignedShopIds || user.shopIds || ['shop-1']
-    };
-
-    const activeShop = this.currentUser.role === 'admin'
-      ? null
-      : (this.currentUser.assignedShopIds[0] || 'shop-1');
-
-    this.activeShopId = activeShop;
-    localStorage.setItem(this.userKey, JSON.stringify(this.currentUser));
-    if (activeShop) {
-      localStorage.setItem(this.shopKey, activeShop);
+    if (!token) {
+      throw new Error(res?.message || 'Authentication succeeded but token was missing.');
     }
 
-    window.dispatchEvent(new CustomEvent('tyros:authChanged', { detail: { user: this.currentUser } }));
-  }
+    this.token = token;
+    this.user = user;
+    ApiClient.setToken(token);
 
-  async logout() {
+    // Save strictly to memory and sessionStorage (never localStorage / never URL)
     try {
-      await ApiClient.post('/auth/logout');
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ token, user }));
     } catch (_) {}
 
+    window.dispatchEvent(new CustomEvent('tyros:auth-changed', { detail: { user } }));
+    return { user, token };
+  }
+
+  logout() {
     this.clearSession();
-    window.dispatchEvent(new CustomEvent('tyros:authChanged', { detail: { user: null } }));
+    window.dispatchEvent(new CustomEvent('tyros:auth-changed', { detail: { user: null } }));
+    window.location.hash = '#/login';
+    Toast.info('Signed out successfully.');
   }
 
   clearSession() {
-    this.currentUser = null;
-    this.activeShopId = null;
+    this.token = null;
+    this.user = null;
     ApiClient.clearToken();
-    localStorage.removeItem(this.userKey);
-    localStorage.removeItem(this.shopKey);
+    try {
+      sessionStorage.removeItem(SESSION_KEY);
+    } catch (_) {}
   }
 }
 

@@ -142,20 +142,29 @@ export async function renderEntryDetail(router, params) {
   container.querySelector('#admin-detail-back')?.addEventListener('click', () => router.back());
 
   // Reassign Modal
-  container.querySelector('#admin-reassign-btn')?.addEventListener('click', () => {
+  container.querySelector('#admin-reassign-btn')?.addEventListener('click', async () => {
+    // Fetch users assigned to this enquiry's shop per validation rules
+    const shopUsers = await Store.getUsers(entry.shopId);
+    const candidateUsers = shopUsers.length > 0 ? shopUsers : users;
+
     UI.showModal(`
       <h3 class="sheet-title">Reassign Staff</h3>
-      <p class="sheet-sub">Select workshop staff member for ${entry.customerName}.</p>
+      <p class="sheet-sub">Select workshop staff member for ${entry.customerName} in ${branchName}.</p>
 
-      <div class="form-group" style="margin: 0 0 16px;">
-        <label class="form-label">Assign To</label>
+      <div class="form-group" style="margin: 0 0 12px;">
+        <label class="form-label">Assign To <span class="req">*</span></label>
         <select id="reassign-select-input" class="form-select">
-          ${users.map(u => `
+          ${candidateUsers.map(u => `
             <option value="${u.id}" ${u.id === entry.assignedToUserId ? 'selected' : ''}>
               ${u.fullName || u.name} (${u.role} - ${u.phone})
             </option>
           `).join('')}
         </select>
+      </div>
+
+      <div class="form-group" style="margin: 0 0 16px;">
+        <label class="form-label">Reassignment Remarks</label>
+        <input type="text" id="reassign-remarks-input" class="form-input" placeholder="e.g. Reassigned due to shift change">
       </div>
 
       <div class="sheet-actions">
@@ -166,10 +175,18 @@ export async function renderEntryDetail(router, params) {
       onMounted(sheet) {
         sheet.querySelector('#confirm-reassign-action').addEventListener('click', async () => {
           const newUserId = sheet.querySelector('#reassign-select-input').value;
-          await Store.updateEntry(entry.id, { assignedToUserId: newUserId });
-          UI.hideModal();
-          UI.showToast('Staff assignment updated successfully', 'success');
-          router.navigate(`/entries`);
+          const remarks = sheet.querySelector('#reassign-remarks-input').value.trim();
+
+          try {
+            await Store.reassignEnquiry(entry.id, newUserId, remarks).catch(async () => {
+              return await Store.updateEntry(entry.id, { assignedToUserId: newUserId });
+            });
+            UI.hideModal();
+            UI.showToast('Staff assignment updated successfully', 'success');
+            router.navigate(`/entries`);
+          } catch (err) {
+            UI.showToast(err.message || 'Failed to reassign enquiry', 'error');
+          }
         });
       }
     });

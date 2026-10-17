@@ -1,90 +1,54 @@
-// Tyros Admin Portal - Master Application Entry Point
+// Tyros Admin - Application Entry Point (app.js)
 import { Router } from './js/router.js';
 import { Auth } from './js/auth.js';
-import { ApiClient } from './js/api.js';
 import { UI } from './js/ui.js';
-
-import { renderLogin } from './js/views/login.js';
-import { renderAdminDashboard } from './js/views/adminDashboard.js';
-import { renderAllEntries } from './js/views/allEntries.js';
-import { renderEntryDetail } from './js/views/entryDetail.js';
-import { renderAdminReports } from './js/views/adminReports.js';
-import { renderManage } from './js/views/manage.js';
-import { renderProfile } from './js/views/profile.js';
-import { renderTyreMaster } from './js/views/tyreMaster.js';
-import { renderCarMaster } from './js/views/carMaster.js';
-import { renderTargets } from './js/views/targets.js';
+import { Sheet } from './js/sheet.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const router = new Router();
+  // 1. Initialize UI & Theme
+  UI.initTheme();
 
-  // Register Pure Admin Routes
-  router.addRoute('/login', renderLogin);
-  router.addRoute('/dashboard', renderAdminDashboard);
-  router.addRoute('/entries', renderAllEntries);
-  router.addRoute('/entry/:id', renderEntryDetail);
-  router.addRoute('/reports', renderAdminReports);
-  router.addRoute('/manage', renderManage);
-  router.addRoute('/profile', renderProfile);
-  router.addRoute('/tyre-master', renderTyreMaster);
-  router.addRoute('/car-master', renderCarMaster);
-  router.addRoute('/targets', renderTargets);
-
-  // Bottom Navigation Click Handlers
-  document.querySelectorAll('#bottom-nav .nav-item').forEach(item => {
-    item.addEventListener('click', (e) => {
-      e.preventDefault();
-      const route = item.dataset.route;
-      router.navigate(route);
+  // 2. Setup Desktop Sidebar Theme & Logout handlers
+  const desktopThemeToggle = document.getElementById('sidebar-theme-toggle');
+  if (desktopThemeToggle) {
+    desktopThemeToggle.addEventListener('click', () => {
+      UI.toggleTheme();
     });
-  });
+  }
 
-  // Handle Unauthorized 401 Event
-  window.addEventListener('tyros:unauthorized', () => {
-    UI.showToast('Session expired. Please log in again.', 'info');
-    router.navigate('/login');
-  });
+  const desktopLogoutBtn = document.getElementById('sidebar-logout-btn');
+  if (desktopLogoutBtn) {
+    desktopLogoutBtn.addEventListener('click', () => {
+      Sheet.confirm({
+        title: 'Sign Out',
+        message: 'Are you sure you want to log out of your session?',
+        confirmText: 'Sign Out',
+        danger: true,
+        onConfirm: () => {
+          Auth.logout();
+        }
+      });
+    });
+  }
 
-  // Handle Auth Changes
-  window.addEventListener('tyros:authChanged', (e) => {
-    if (!e.detail.user) {
-      router.navigate('/login');
+  // 3. Update desktop user profile label on auth change
+  const updateDesktopUser = () => {
+    const user = Auth.getUser();
+    const badge = document.getElementById('desktop-user-badge');
+    if (badge) {
+      badge.textContent = user?.fullName || user?.name || 'Admin';
     }
-  });
+  };
+  window.addEventListener('tyros:auth-changed', updateDesktopUser);
+  updateDesktopUser();
 
-  // Background Wakeup for Render Server
-  setupServerWakeup();
+  // 4. Initialize Hash Router
+  await Router.init();
 
-  // Initialize Route
-  await router.handleRouting();
-
-  // Register Service Worker for PWA
+  // 5. Register PWA Service Worker if available
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
     navigator.serviceWorker.register('./sw.js').catch(err => {
-      console.log('[SW] Service worker registration skipped:', err.message);
+      console.log('[PWA] Service worker registration skipped:', err.message);
     });
   }
 });
-
-function setupServerWakeup() {
-  const banner = document.getElementById('server-banner');
-
-  ApiClient.onServerStatusChange((status) => {
-    if (status === 'connecting') {
-      if (banner) {
-        banner.className = 'active';
-        banner.innerHTML = `
-          <span>⏳ Connecting to cloud backend (waking up server)...</span>
-          <span style="font-size:10.5px; opacity:0.8;">Local data active</span>
-        `;
-      }
-    } else {
-      if (banner) {
-        banner.className = '';
-      }
-    }
-  });
-
-  // Trigger silent wakeup
-  ApiClient.wakeServer();
-}

@@ -21,11 +21,12 @@ export async function renderAllEntries(router, params) {
   const initialShopId = urlParams.get('shopId') || '';
   const initialFilter = urlParams.get('filter') || '';
 
-  // Count stats (matching Flutter: 71 records, 47 completed, 0 pending)
-  const totalCount = allEntries.length;
-  const completedCount = allEntries.filter(e => e.status === 'COMPLETED' && e.fitStatus === 'FIT').length;
-  const pendingCount = allEntries.filter(e => e.status === 'PENDING' && e.fitStatus === 'FIT' && !e.isOverdue).length;
-  const overdueCount = allEntries.filter(e => e.isOverdue).length;
+  // Count stats (matching Flutter)
+  const nonDeleted = allEntries.filter(e => !e.isDeleted);
+  const totalCount = nonDeleted.length;
+  const completedCount = nonDeleted.filter(e => e.status === 'COMPLETED' && e.fitStatus !== 'NOT_FIT').length;
+  const pendingCount = nonDeleted.filter(e => e.status === 'PENDING' && e.fitStatus !== 'NOT_FIT' && !e.isNoResponse && !e.isOverdue).length;
+  const overdueCount = nonDeleted.filter(e => e.isOverdue).length;
 
   // Generate initials and curated pastel avatar colors matching Flutter
   function getInitials(name) {
@@ -258,20 +259,27 @@ export async function renderAllEntries(router, params) {
     if (confirm('Sign out?')) { await Auth.logout(); router.navigate('/login'); }
   });
 
-  // Excel export
-  container.querySelector('#entries-excel-btn')?.addEventListener('click', () => {
-    const headers = ['Customer Name', 'Mobile', 'Vehicle', 'Model', 'Branch', 'Status', 'Tyre', 'Amount'];
-    const rows = allEntries.map(e => [
-      `"${e.customerName}"`, `"${e.mobileNumber}"`, `"${e.vehicleNumber}"`,
-      `"${e.vehicleDetails}"`, `"${shopMap[e.shopId] || ''}"`, e.status,
-      `"${e.tyreBrand} ${e.tyreSize}"`, e.amount || 0
-    ]);
-    const csv = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const a = document.createElement('a');
-    a.href = encodeURI(csv);
-    a.download = `tyros_entries_${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
-    UI.showToast('Excel export downloaded', 'success');
+  // Excel export using /admin/export/csv with client-side fallback
+  container.querySelector('#entries-excel-btn')?.addEventListener('click', async () => {
+    try {
+      UI.showToast('Preparing CSV export...', 'info');
+      await Store.downloadEnquiriesCsv();
+      UI.showToast('CSV export downloaded successfully', 'success');
+    } catch (err) {
+      console.warn('[AllEntries] Remote CSV export fallback to client-generated CSV:', err.message);
+      const headers = ['Customer Name', 'Mobile', 'Vehicle', 'Model', 'Branch', 'Status', 'Tyre', 'Amount'];
+      const rows = allEntries.map(e => [
+        `"${e.customerName}"`, `"${e.mobileNumber}"`, `"${e.vehicleNumber}"`,
+        `"${e.vehicleDetails}"`, `"${shopMap[e.shopId] || ''}"`, e.status,
+        `"${e.tyreBrand} ${e.tyreSize}"`, e.amount || 0
+      ]);
+      const csv = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const a = document.createElement('a');
+      a.href = encodeURI(csv);
+      a.download = `tyros_entries_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      UI.showToast('Excel export downloaded', 'success');
+    }
   });
 
   renderList();

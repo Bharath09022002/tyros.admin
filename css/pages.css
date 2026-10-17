@@ -1,0 +1,740 @@
+/* ==========================================================================
+   Tyros Admin - Page Specific Styles (css/pages.css)
+   Phase 2: Dashboard Layout, Defect Fixes, Pull-to-refresh & Animations
+   ========================================================================== */
+
+/* 1. Login Page */
+.login-view-wrapper {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background-color: var(--bg-paper);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6) var(--space-5);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+.login-brand-header {
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+
+.login-logo-badge {
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-lg);
+  background-color: var(--accent);
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(194, 65, 12, 0.35);
+  margin-bottom: var(--space-3);
+}
+
+.login-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.login-subtitle {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--space-4);
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.login-submit-btn {
+  margin-top: var(--space-2);
+  width: 100%;
+}
+
+.login-error-banner {
+  background-color: var(--status-overdue-bg);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: var(--status-overdue);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: var(--space-4);
+  display: none;
+}
+
+/* 2. Pull-To-Refresh Visual Indicator (iPhone style) */
+.ptr-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transform: translateY(-100%);
+  transition: transform var(--dur-tap) var(--ease-smooth), opacity var(--dur-tap) ease;
+  z-index: var(--z-header);
+}
+
+.ptr-bubble {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+/* 3. Dashboard Header Row */
+.dash-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dash-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: color var(--dur-fast) ease, background-color var(--dur-fast) ease;
+}
+
+.dash-refresh-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-subtle);
+}
+
+.dash-refresh-btn.spinning svg {
+  animation: spin 0.7s linear infinite;
+}
+
+/* 4. Dashboard Hero Stat (large count-up number) */
+.dash-hero-card {
+  padding: var(--space-2) 0 var(--space-4);
+}
+
+.dash-hero-num-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.dash-hero-num {
+  font-family: var(--font-display);
+  font-size: clamp(52px, 12vw, 68px);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+}
+
+.dash-hero-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.dash-hero-caps {
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dash-reconcile-pill {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* 5. Status Tiles Grid (Defect 5 Fixed: Reconciled 4 tiles: Pending, Overdue, Completed, Other) */
+.dash-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+@media (min-width: 480px) {
+  .dash-stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.dash-stat-tile {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 84px;
+  transition: transform var(--dur-tap) var(--ease-smooth), box-shadow var(--dur-fast) ease, border-color var(--dur-fast) ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.dash-stat-tile:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+
+.dash-stat-tile:active {
+  transform: scale(0.97);
+}
+
+.dash-stat-num {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.dash-stat-label {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.dash-stat-tile.tile-pending {
+  border-top: 3px solid var(--status-pending);
+}
+.dash-stat-tile.tile-pending .dash-stat-num { color: var(--status-pending); }
+.dash-stat-tile.tile-pending .dash-stat-label { color: var(--status-pending); }
+
+.dash-stat-tile.tile-overdue {
+  border-top: 3px solid var(--status-overdue);
+}
+.dash-stat-tile.tile-overdue .dash-stat-num { color: var(--status-overdue); }
+.dash-stat-tile.tile-overdue .dash-stat-label { color: var(--status-overdue); }
+
+.dash-stat-tile.tile-completed {
+  border-top: 3px solid var(--status-completed);
+}
+.dash-stat-tile.tile-completed .dash-stat-num { color: var(--status-completed); }
+.dash-stat-tile.tile-completed .dash-stat-label { color: var(--status-completed); }
+
+.dash-stat-tile.tile-other {
+  border-top: 3px solid var(--status-other);
+}
+.dash-stat-tile.tile-other .dash-stat-num { color: var(--status-other); }
+.dash-stat-tile.tile-other .dash-stat-label { color: var(--status-other); }
+
+/* 6. Tools Grid: Tyre Master & Car Master (Defect 2 Fixed: "Brands & models" not truncated) */
+.dash-tools-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.dash-tool-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+  transition: transform var(--dur-tap) var(--ease-smooth), box-shadow var(--dur-fast) ease;
+}
+
+.dash-tool-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.dash-tool-card:active {
+  transform: scale(0.97);
+}
+
+.dash-tool-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background-color: var(--accent-subtle);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dash-tool-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-tool-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dash-tool-title {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.dash-tool-subtitle {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Defect 2 Fixed */
+}
+
+/* 7. Wide Targets Card (Monthly quotas, goals, animated progress) */
+.dash-targets-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-4);
+  cursor: pointer;
+  transition: transform var(--dur-tap) var(--ease-smooth), box-shadow var(--dur-fast) ease;
+}
+
+.dash-targets-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.dash-targets-card:active {
+  transform: scale(0.98);
+}
+
+.dash-targets-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.dash-targets-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
+}
+
+.dash-targets-title {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.dash-targets-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Progress bar container */
+.dash-progress-track {
+  width: 100%;
+  height: 8px;
+  background-color: var(--border-subtle);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-top: 6px;
+  position: relative;
+}
+
+.dash-progress-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.8s var(--ease-smooth);
+}
+
+/* 8. Load By Shop Section */
+.dash-shop-load-section {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-4);
+}
+
+.dash-shop-load-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.dash-shop-load-title {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dash-shop-load-manage {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dash-shop-row {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) ease;
+}
+
+.dash-shop-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dash-shop-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+/* 9. Desktop Responsive Dashboard Multi-Column Grid (>= 1100px) */
+@media (min-width: 1100px) {
+  .dash-desktop-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+  }
+
+  .dash-col-left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .dash-col-right {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .dash-hero-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+/* 10. Filter Chips Row (Entries & Reports) */
+.filter-pills-row {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-4);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.filter-pills-row::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-pill {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  background-color: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--dur-fast) ease;
+}
+
+.filter-pill:hover {
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
+}
+
+.filter-pill.active {
+  background-color: var(--accent);
+  color: #FFFFFF;
+  border-color: var(--accent);
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(194, 65, 12, 0.25);
+}
+
+/* 11. Customer Enquiry Card (Entries Page) */
+.enquiry-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform var(--dur-tap) var(--ease-smooth), box-shadow var(--dur-fast) ease;
+}
+
+.enquiry-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.enquiry-card:active {
+  transform: scale(0.985);
+}
+
+.enquiry-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.enquiry-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.enquiry-cust-name {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.enquiry-cust-phone {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.enquiry-vehicle-pill {
+  font-size: 12px;
+  font-weight: 600;
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+}
+
+.enquiry-details-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  border-top: 1px dashed var(--border-subtle);
+  padding-top: 8px;
+}
+
+/* 12. Shop Overview Cards (Report Page) */
+.shop-report-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  transition: transform var(--dur-tap) var(--ease-smooth), box-shadow var(--dur-fast) ease;
+}
+
+.shop-report-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.shop-report-card:active {
+  transform: scale(0.985);
+}
+
+.shop-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 13. Manage Segmented Control & Item Cards */
+.manage-segmented-control {
+  display: flex;
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  border: 1px solid var(--border-default);
+  margin-bottom: var(--space-4);
+}
+
+.manage-subtab-btn {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all var(--dur-fast) ease;
+}
+
+.manage-subtab-btn.active {
+  background-color: var(--bg-surface);
+  color: var(--accent);
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(31, 27, 24, 0.08);
+}
+
+.manage-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-xs);
+  margin-bottom: var(--space-3);
+}
+
+.manage-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.btn-action-small {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-action-small:hover {
+  background-color: var(--bg-subtle);
+}
+

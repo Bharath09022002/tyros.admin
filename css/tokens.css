@@ -1,0 +1,156 @@
+/* ==========================================================================
+   Tyros Admin - Design Tokens (css/tokens.css)
+   Phase 1: iPhone-first, warm cream palette, dark mode support
+   ========================================================================== */
+
+:root {
+  /* --- Color Palette: Light (Default) --- */
+  --bg-paper: #F3EFE8;          /* Warm cream backdrop */
+  --bg-surface: #FFFFFF;        /* Card & sheet background */
+  --bg-subtle: #E8E2D6;         /* Secondary controls / segments */
+  --bg-header: #1F1B18;         /* Near-black charcoal header */
+  --bg-header-text: #F3EFE8;    /* Text on charcoal header */
+  
+  --text-primary: #1F1B18;      /* Primary text (contrast > 10:1) */
+  --text-secondary: #575047;    /* Secondary text (contrast > 5.5:1) */
+  --text-muted: #82796F;        /* Muted captions (contrast > 4.5:1) */
+  
+  --accent: #C2410C;            /* Burnt-orange primary accent */
+  --accent-hover: #9A3412;
+  --accent-subtle: rgba(194, 65, 12, 0.09);
+  --accent-border: rgba(194, 65, 12, 0.28);
+  --accent-contrast: #FFFFFF;
+  
+  --border-subtle: #E5DFD4;     /* 1px divider border */
+  --border-default: #DDD5C7;    /* Card & input border */
+  --border-strong: #B8ADA0;     /* Active borders */
+
+  --tabbar-bg: rgba(243, 239, 232, 0.88); /* Translucent cream */
+  --tabbar-border: rgba(221, 213, 199, 0.7);
+
+  /* Status Colors */
+  --status-pending: #EA580C;
+  --status-pending-bg: rgba(234, 88, 12, 0.12);
+  --status-overdue: #DC2626;
+  --status-overdue-bg: rgba(220, 38, 38, 0.12);
+  --status-completed: #16A34A;
+  --status-completed-bg: rgba(22, 163, 74, 0.12);
+  --status-other: #475569;
+  --status-other-bg: rgba(71, 85, 105, 0.12);
+
+  /* --- Spacing: 4px Base Scale --- */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* --- Radii (16-20px for premium feel) --- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 9999px;
+
+  /* --- Typography --- */
+  --font-display: 'Barlow Condensed', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* --- Layered Soft Shadows --- */
+  --shadow-xs: 0 1px 2px rgba(31, 27, 24, 0.04);
+  --shadow-sm: 0 2px 5px rgba(31, 27, 24, 0.06), 0 1px 2px rgba(31, 27, 24, 0.03);
+  --shadow-md: 0 4px 12px rgba(31, 27, 24, 0.08), 0 2px 4px rgba(31, 27, 24, 0.04);
+  --shadow-lg: 0 10px 25px rgba(31, 27, 24, 0.1), 0 3px 6px rgba(31, 27, 24, 0.05);
+  --shadow-sheet: 0 -8px 30px rgba(31, 27, 24, 0.15);
+
+  /* --- Motion --- */
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+  --dur-tap: 120ms;
+  --dur-fast: 180ms;
+  --dur-normal: 260ms;
+
+  /* --- Z-Indices --- */
+  --z-base: 1;
+  --z-header: 50;
+  --z-tabbar: 60;
+  --z-sidebar: 70;
+  --z-modal-backdrop: 100;
+  --z-modal: 101;
+  --z-toast: 150;
+
+  /* --- Layout & Safe Area Constants --- */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --tabbar-height: calc(58px + var(--safe-bottom));
+  --header-height: 62px;
+  --sidebar-width: 250px;
+}
+
+/* --- Dark Mode Variables (Manual or System Preference) --- */
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  --bg-paper: #13110F;          /* Deep warm charcoal */
+  --bg-surface: #1C1917;        /* Slate-dark card */
+  --bg-subtle: #26221E;         /* Subtle controls */
+  --bg-header: #0E0C0B;         /* Header dark */
+  --bg-header-text: #F5F3EE;
+  
+  --text-primary: #F5F3EE;      /* High contrast text > 12:1 */
+  --text-secondary: #C4BCB3;    /* Contrast > 6:1 */
+  --text-muted: #8E867E;        /* Contrast > 4.5:1 */
+  
+  --accent: #EA580C;            /* Slightly brighter orange for dark mode */
+  --accent-hover: #FB923C;
+  --accent-subtle: rgba(234, 88, 12, 0.18);
+  --accent-border: rgba(234, 88, 12, 0.4);
+  --accent-contrast: #FFFFFF;
+
+  --border-subtle: #26221E;
+  --border-default: #35302A;
+  --border-strong: #4F473E;
+
+  --tabbar-bg: rgba(19, 17, 15, 0.88);
+  --tabbar-border: rgba(53, 48, 42, 0.7);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.6);
+  --shadow-sheet: 0 -8px 30px rgba(0, 0, 0, 0.65);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-paper: #13110F;
+    --bg-surface: #1C1917;
+    --bg-subtle: #26221E;
+    --bg-header: #0E0C0B;
+    --bg-header-text: #F5F3EE;
+    
+    --text-primary: #F5F3EE;
+    --text-secondary: #C4BCB3;
+    --text-muted: #8E867E;
+    
+    --accent: #EA580C;
+    --accent-hover: #FB923C;
+    --accent-subtle: rgba(234, 88, 12, 0.18);
+    --accent-border: rgba(234, 88, 12, 0.4);
+
+    --border-subtle: #26221E;
+    --border-default: #35302A;
+    --border-strong: #4F473E;
+
+    --tabbar-bg: rgba(19, 17, 15, 0.88);
+    --tabbar-border: rgba(53, 48, 42, 0.7);
+  }
+}

@@ -1,0 +1,523 @@
+/* ==========================================================================
+   Tyros Admin - Components (css/components.css)
+   Phase 1: Header, Bottom Tab Bar, Sidebar, Toast, Sheet, Buttons
+   ========================================================================== */
+
+/* 1. App Header (Mobile & Tablet) */
+.app-header {
+  background-color: var(--bg-header);
+  color: var(--bg-header-text);
+  padding: calc(var(--safe-top) + 12px) var(--space-4) 14px;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  /* Defect 1 Fixed: No ::after or ::before orange curved blob! Clean charcoal header. */
+}
+
+.app-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  max-width: 100%;
+}
+
+.app-header-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.app-header-title {
+  font-family: var(--font-display);
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #FFFFFF;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-header-subtitle {
+  font-size: 12.5px;
+  color: #B5ACA1;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+/* Header Icon Buttons (Defect 1 Fixed: Clean 44x44px circles, no blob) */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.header-icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color var(--dur-tap) var(--ease-smooth), transform var(--dur-tap) var(--ease-smooth);
+}
+
+.header-icon-btn:hover {
+  background-color: rgba(255, 255, 255, 0.16);
+}
+
+.header-icon-btn:active {
+  transform: scale(0.94);
+  background-color: rgba(255, 255, 255, 0.22);
+}
+
+/* 2. Bottom Tab Bar (Mobile & Tablet < 1100px) */
+.mobile-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--tabbar-height);
+  padding-bottom: var(--safe-bottom);
+  background: var(--tabbar-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--tabbar-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: var(--z-tabbar);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.tab-btn {
+  flex: 1;
+  height: 52px;
+  min-width: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 500;
+  position: relative;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.tab-btn .tab-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.tab-btn svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  fill: none;
+  transition: stroke var(--dur-fast) var(--ease-smooth), fill var(--dur-fast) var(--ease-smooth);
+}
+
+.tab-btn .tab-label {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Active Tab Styling */
+.tab-btn[aria-current="page"] {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.tab-btn[aria-current="page"] svg {
+  stroke: var(--accent);
+}
+
+/* Active indicator pill */
+.tab-btn[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  width: 14px;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background-color: var(--accent);
+}
+
+/* 3. Desktop Sidebar (>= 1100px) */
+.desktop-sidebar {
+  display: none;
+  width: var(--sidebar-width);
+  height: 100vh;
+  height: 100dvh;
+  background-color: var(--bg-header);
+  color: #FFFFFF;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: var(--z-sidebar);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-brand {
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-logo-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.sidebar-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #FFFFFF;
+  letter-spacing: 0.02em;
+}
+
+.sidebar-subtitle {
+  font-size: 11.5px;
+  color: #9C948A;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: var(--space-4) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  overflow-y: auto;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 11px var(--space-3);
+  border-radius: var(--radius-md);
+  color: #C7BFB5;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+
+.sidebar-link svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  flex-shrink: 0;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+}
+
+.sidebar-link[aria-current="page"] {
+  background-color: var(--accent);
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.sidebar-footer {
+  padding: var(--space-4) var(--space-4);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.theme-toggle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-smooth);
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* 4. Desktop Top Bar (>= 1100px) */
+.desktop-top-bar {
+  display: none;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-default);
+  padding: var(--space-3) var(--space-6);
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+}
+
+.desktop-search-box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--bg-paper);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 6px 14px;
+  width: 320px;
+}
+
+.desktop-search-box input {
+  border: none;
+  background: transparent;
+  padding: 0;
+  min-height: auto;
+  box-shadow: none;
+  font-size: 14px !important;
+  color: var(--text-primary);
+  width: 100%;
+}
+
+.desktop-search-box input:focus {
+  box-shadow: none;
+}
+
+/* 5. Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 46px;
+  padding: 10px 20px;
+  background-color: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 14.5px;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(194, 65, 12, 0.25);
+  transition: background-color var(--dur-fast) var(--ease-smooth), transform var(--dur-tap) var(--ease-smooth);
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 46px;
+  padding: 10px 20px;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-smooth);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-subtle);
+}
+
+/* 6. Accessible Toast Notifications */
+#toast-container {
+  position: fixed;
+  bottom: calc(var(--tabbar-height) + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: calc(100% - 32px);
+  max-width: 400px;
+  pointer-events: none;
+}
+
+@media (min-width: 1100px) {
+  #toast-container {
+    bottom: 24px;
+    right: 24px;
+    left: auto;
+    transform: none;
+  }
+}
+
+.toast {
+  pointer-events: auto;
+  background-color: var(--bg-header);
+  color: #FFFFFF;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  animation: toastIn var(--dur-fast) var(--ease-spring);
+  transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease;
+}
+
+.toast.toast-error {
+  border-left: 4px solid var(--status-overdue);
+}
+
+.toast.toast-success {
+  border-left: 4px solid var(--status-completed);
+}
+
+.toast.toast-info {
+  border-left: 4px solid var(--accent);
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 7. Bottom Sheet / Dialog (sheet.js) */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: var(--z-modal-backdrop);
+  opacity: 0;
+  transition: opacity var(--dur-normal) var(--ease-smooth);
+}
+
+.sheet-backdrop.active {
+  opacity: 1;
+}
+
+.sheet-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-surface);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  padding: var(--space-4) var(--space-5) calc(var(--safe-bottom) + var(--space-5));
+  z-index: var(--z-modal);
+  box-shadow: var(--shadow-sheet);
+  transform: translateY(100%);
+  transition: transform var(--dur-normal) var(--ease-smooth);
+  max-height: 85dvh;
+  overflow-y: auto;
+}
+
+.sheet-backdrop.active .sheet-container {
+  transform: translateY(0);
+}
+
+.sheet-handle {
+  width: 38px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+  margin: 0 auto var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .sheet-container {
+    top: 50%;
+    bottom: auto;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -46%) scale(0.96);
+    border-radius: var(--radius-xl);
+    width: 90%;
+    max-width: 480px;
+    padding: var(--space-6);
+  }
+  .sheet-backdrop.active .sheet-container {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .sheet-handle {
+    display: none;
+  }
+}
+
+/* 8. Skeletons & Spinners */
+.skeleton {
+  background: linear-gradient(90deg, var(--border-subtle) 25%, var(--bg-subtle) 50%, var(--border-subtle) 75%);
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.6s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes skeletonPulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--border-default);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

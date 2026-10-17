@@ -1,134 +1,158 @@
-// SPA Router for Tyros Admin Portal matching Flutter AdminShell routes
+// Tyros Admin - Hash Router (js/router.js)
 import { Auth } from './auth.js';
-import { UI } from './ui.js';
+import { ApiClient } from './api.js';
 
-export class Router {
-  constructor(routes = {}) {
-    this.routes = routes;
+export class HashRouter {
+  constructor() {
     this.currentRoute = null;
-    this.viewContainer = document.getElementById('view-container');
-    this.bottomNav = document.getElementById('bottom-nav');
+    this.container = null;
+    this.routes = {
+      '#/login': () => import('./pages/login.js?v=2.0.4').then(m => m.renderLoginPage),
+      '#/dashboard': () => import('./pages/dashboard.js?v=2.0.4').then(m => m.renderDashboardPage),
+      '#/entries': () => import('./pages/entries.js?v=2.0.4').then(m => m.renderEntriesPage),
+      '#/report': () => import('./pages/report.js?v=2.0.4').then(m => m.renderReportPage),
+      '#/reports': () => import('./pages/report.js?v=2.0.4').then(m => m.renderReportPage),
+      '#/manage': () => import('./pages/manage.js?v=2.0.4').then(m => m.renderManagePage),
+      '#/profile': () => import('./pages/profile.js?v=2.0.4').then(m => m.renderProfilePage),
+    };
+  }
 
+  init() {
+    this.container = document.getElementById('main-scroll-area');
     window.addEventListener('hashchange', () => this.handleRouting());
-    window.addEventListener('popstate', () => this.handleRouting());
+    return this.handleRouting();
   }
 
-  addRoute(path, renderFn, options = {}) {
-    this.routes[path] = { renderFn, options };
+  handleRouting() {
+    return this.route();
   }
 
-  navigate(path) {
-    window.location.hash = path;
+  navigate(hash) {
+    if (!hash.startsWith('#')) hash = `#${hash}`;
+    window.location.hash = hash;
   }
 
-  back() {
-    window.history.back();
-  }
+  async route() {
+    let hash = window.location.hash || '';
+    if (!hash || hash === '#' || hash === '#/') {
+      hash = Auth.isAuthenticated() ? '#/dashboard' : '#/login';
+    }
 
-  async handleRouting() {
-    let hash = window.location.hash.slice(1);
+    // Separate path from query params
     const queryIdx = hash.indexOf('?');
-    let queryParams = {};
-    if (queryIdx !== -1) {
-      const qStr = hash.slice(queryIdx + 1);
-      queryParams = Object.fromEntries(new URLSearchParams(qStr));
-      hash = hash.slice(0, queryIdx);
-    }
+    const path = queryIdx !== -1 ? hash.slice(0, queryIdx) : hash;
+    const queryString = queryIdx !== -1 ? hash.slice(queryIdx + 1) : '';
+    const params = Object.fromEntries(new URLSearchParams(queryString));
 
-    if (!hash || hash === '/') {
-      hash = Auth.isAuthenticated() ? '/dashboard' : '/login';
-    }
-
-    // Auth Guard: redirect to login if not authenticated
-    if (!Auth.isAuthenticated() && hash !== '/login') {
-      window.location.hash = '/login';
+    // Auth guard
+    if (!Auth.isAuthenticated() && path !== '#/login') {
+      window.location.hash = '#/login';
       return;
     }
 
-    // Match Route (exact or parameterized like /entry/:id)
-    let matchedHandler = null;
-    let params = { ...queryParams };
-
-    for (const [pattern, handler] of Object.entries(this.routes)) {
-      if (pattern === hash) {
-        matchedHandler = handler;
-        break;
-      }
-
-      // Check parameterized patterns (e.g., /entry/:id)
-      const patternParts = pattern.split('/');
-      const hashParts = hash.split('/');
-
-      if (patternParts.length === hashParts.length) {
-        let match = true;
-        const extracted = {};
-
-        for (let i = 0; i < patternParts.length; i++) {
-          if (patternParts[i].startsWith(':')) {
-            extracted[patternParts[i].slice(1)] = decodeURIComponent(hashParts[i]);
-          } else if (patternParts[i] !== hashParts[i]) {
-            match = false;
-            break;
-          }
-        }
-
-        if (match) {
-          matchedHandler = handler;
-          params = { ...params, ...extracted };
-          break;
-        }
-      }
-    }
-
-    if (!matchedHandler) {
-      // Default fallback
-      window.location.hash = Auth.isAuthenticated() ? '/dashboard' : '/login';
+    if (Auth.isAuthenticated() && path === '#/login') {
+      window.location.hash = '#/dashboard';
       return;
     }
 
-    this.currentRoute = hash;
+    // Abort in-flight API requests from previous view
+    ApiClient.abortAll();
 
-    // Show/hide Admin Bottom Navigation Bar
-    const showNav = hash !== '/login' && Auth.isAuthenticated();
-    if (this.bottomNav) {
-      this.bottomNav.style.display = showNav ? 'flex' : 'none';
-      this.updateActiveNav(hash);
+    const loader = this.routes[path];
+    if (!loader) {
+      window.location.hash = Auth.isAuthenticated() ? '#/dashboard' : '#/login';
+      return;
     }
 
-    // Scroll to top
-    if (this.viewContainer) {
-      this.viewContainer.scrollTop = 0;
-      this.viewContainer.innerHTML = `
-        <div style="display:flex; justify-content:center; align-items:center; min-height: 260px;">
-          <div class="spinner"></div>
-        </div>
-      `;
+    this.currentRoute = path;
+    this.updateNavigationUI(path);
 
-      try {
-        const viewEl = await matchedHandler.renderFn(this, params);
-        this.viewContainer.innerHTML = '';
-        this.viewContainer.appendChild(viewEl);
-      } catch (err) {
-        console.error('[Router] View render failed:', err);
-        this.viewContainer.innerHTML = `
-          <div style="padding: 40px 20px; text-align: center; color: var(--status-overdue);">
-            <div style="font-size: 24px; margin-bottom: 8px;">⚠️</div>
-            <div style="font-family: var(--font-condensed); font-size: 18px; font-weight: 700;">Failed to Load Page</div>
-            <div style="font-size: 12px; color: var(--text-muted); margin: 6px 0 16px;">${err.message || 'An unexpected error occurred'}</div>
-            <button class="btn-dark-cta" style="margin: 0 auto; max-width: 200px;" onclick="window.location.reload()">Retry</button>
+    // Render using View Transitions API if supported
+    const renderAction = async () => {
+      this.container = this.container || document.getElementById('main-scroll-area');
+      if (this.container) {
+        this.container.scrollTop = 0;
+        this.container.innerHTML = `
+          <div style="display:flex; justify-content:center; align-items:center; min-height:260px;">
+            <div class="spinner" aria-label="Loading page"></div>
           </div>
         `;
+        try {
+          const renderFn = await loader();
+          const pageEl = await renderFn(this, params);
+          this.container.innerHTML = '';
+          this.container.appendChild(pageEl);
+        } catch (err) {
+          console.error('[Router] Failed to render view:', err);
+          this.container.innerHTML = `
+            <div class="page-container" style="text-align:center; padding:48px var(--space-4);">
+              <div style="font-size:36px; margin-bottom:12px;">⚠️</div>
+              <h2 style="font-family:var(--font-display); font-size:24px; color:var(--status-overdue);">Failed to load view</h2>
+              <p style="font-size:13.5px; color:var(--text-muted); margin:8px 0 20px;">${err.message || 'An error occurred'}</p>
+              <button class="btn-primary" style="margin:0 auto;" onclick="window.location.reload()">Retry</button>
+            </div>
+          `;
+        }
       }
+    };
+
+    if (document.startViewTransition) {
+      document.startViewTransition(() => renderAction());
+    } else {
+      await renderAction();
     }
   }
 
-  updateActiveNav(currentPath) {
-    if (!this.bottomNav) return;
-    const items = this.bottomNav.querySelectorAll('.nav-item');
-    items.forEach(item => {
-      const route = item.dataset.route;
-      const isActive = currentPath === route || (route === '/entries' && currentPath.startsWith('/entry'));
-      item.classList.toggle('active', isActive);
+  updateNavigationUI(currentPath) {
+    const isLoginPage = currentPath === '#/login';
+    const mobileTabBar = document.querySelector('.mobile-tab-bar');
+    const desktopSidebar = document.querySelector('.desktop-sidebar');
+    const desktopTopBar = document.querySelector('.desktop-top-bar');
+
+    // Toggle nav bars on login vs app
+    if (mobileTabBar) mobileTabBar.style.display = isLoginPage ? 'none' : '';
+    if (desktopSidebar) desktopSidebar.style.display = isLoginPage ? 'none' : '';
+    if (desktopTopBar) desktopTopBar.style.display = isLoginPage ? 'none' : '';
+
+    if (isLoginPage) return;
+
+    // Normalize '#/reports' to '#/report' for navigation match
+    const normalizedPath = currentPath === '#/reports' ? '#/report' : currentPath;
+
+    // Update Mobile Tab Bar
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      const btnHref = btn.getAttribute('href');
+      if (btnHref === normalizedPath) {
+        btn.setAttribute('aria-current', 'page');
+      } else {
+        btn.removeAttribute('aria-current');
+      }
+    });
+
+    // Update Desktop Sidebar
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      const linkHref = link.getAttribute('href');
+      if (linkHref === normalizedPath) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
+      }
     });
   }
 }
+
+// Instance for singleton usage
+const defaultRouter = new HashRouter();
+
+// Allow Router to be used both as a class (`new Router()`) or as an instance/static proxy (`Router.init()`)
+export const Router = new Proxy(HashRouter, {
+  get(target, prop) {
+    if (prop in defaultRouter) {
+      const val = defaultRouter[prop];
+      return typeof val === 'function' ? val.bind(defaultRouter) : val;
+    }
+    return target[prop];
+  }
+});
+
+export default defaultRouter;

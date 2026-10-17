@@ -200,7 +200,7 @@ export async function renderCarMaster(router) {
             <div class="form-group" style="margin: 0 0 16px;">
               <label class="form-label">Brand</label>
               <select id="edit-model-brand" class="form-select">
-                ${brands.map(b => `<option value="${b.name}" ${b.name === item.brandName ? 'selected' : ''}>${b.name}</option>`).join('')}
+                ${brands.map(b => `<option value="${b.id}" ${b.id === item.brandId || b.name === item.brandName ? 'selected' : ''}>${b.name}</option>`).join('')}
               </select>
             </div>
             <div class="sheet-actions">
@@ -211,13 +211,17 @@ export async function renderCarMaster(router) {
             onMounted(sheet) {
               sheet.querySelector('#save-model-btn').addEventListener('click', async () => {
                 const name = sheet.querySelector('#edit-model-name').value.trim();
-                const bName = sheet.querySelector('#edit-model-brand').value;
+                const brandId = sheet.querySelector('#edit-model-brand').value;
                 if (!name) return UI.showToast('Please enter model name', 'error');
-                await Store.updateCarModel(id, name, bName);
-                models = await Store.getCarModels();
-                UI.hideModal();
-                UI.showToast(`Updated model to "${name}"`, 'success');
-                renderItems();
+                try {
+                  await Store.updateCarModel(id, name, brandId);
+                  models = await Store.getCarModels();
+                  UI.hideModal();
+                  UI.showToast(`Updated model to "${name}"`, 'success');
+                  renderItems();
+                } catch (err) {
+                  UI.showToast(err.message || 'Failed to update model', 'error');
+                }
               });
             }
           });
@@ -265,7 +269,7 @@ export async function renderCarMaster(router) {
         <div class="form-group" style="margin: 0 0 16px;">
           <label class="form-label">Brand <span class="req">*</span></label>
           <select id="new-model-brand" class="form-select">
-            ${brands.map(b => `<option value="${b.name}">${b.name}</option>`).join('')}
+            ${brands.map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
           </select>
         </div>
         <div class="sheet-actions">
@@ -276,15 +280,19 @@ export async function renderCarMaster(router) {
         onMounted(sheet) {
           sheet.querySelector('#add-model-save-btn').addEventListener('click', async () => {
             const name = sheet.querySelector('#new-model-name').value.trim();
-            const bName = sheet.querySelector('#new-model-brand').value;
+            const brandId = sheet.querySelector('#new-model-brand').value;
             if (!name) return UI.showToast('Please enter model name', 'error');
-            await Store.addCarModel(name, bName);
-            models = await Store.getCarModels();
-            UI.hideModal();
-            UI.showToast(`Added car model "${name}"`, 'success');
-            container.innerHTML = buildHtml();
-            setupEvents();
-            renderItems();
+            try {
+              await Store.addCarModel(name, brandId);
+              models = await Store.getCarModels();
+              UI.hideModal();
+              UI.showToast(`Added car model "${name}"`, 'success');
+              container.innerHTML = buildHtml();
+              setupEvents();
+              renderItems();
+            } catch (err) {
+              UI.showToast(err.message || 'Failed to add model', 'error');
+            }
           });
         }
       });

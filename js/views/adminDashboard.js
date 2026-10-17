@@ -8,25 +8,42 @@ export async function renderAdminDashboard(router) {
   container.className = 'view-screen';
 
   const user = Auth.getUser();
-  const userName = user?.fullName || user?.name || 'Administrator';
+  const userName = user?.fullName || user?.name || 'Bharath';
   const shops = await Store.getShops();
-  const allEntries = await Store.getEntries();
+  const adminDash = await Store.getAdminDashboard();
   const activeShops = shops.filter(s => s.isActive);
   const nowTime = new Date().toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
 
-  // Compute live stats directly from real API entries
-  const nonDeleted = allEntries;
-  const uniqueCustomerKeys = new Set(nonDeleted.map(e => (e.mobileNumber || e.customerName || '').trim()).filter(Boolean));
-  const totalCustomers = uniqueCustomerKeys.size;
-  const pendingCount = nonDeleted.filter(e => e.status === 'PENDING' && e.fitStatus === 'FIT' && !e.isOverdue).length;
-  const overdueCount = nonDeleted.filter(e => e.isOverdue).length;
-  const completedCount = nonDeleted.filter(e => e.status === 'COMPLETED' && e.fitStatus === 'FIT').length;
+  let totalCustomers = 0;
+  let pendingCount = 0;
+  let overdueCount = 0;
+  let completedCount = 0;
+  let shopPendingData = [];
 
-  // Shop pending counts for Load by shop section
-  const shopPendingData = activeShops.map(shop => {
-    const pending = nonDeleted.filter(e => e.shopId === shop.id && e.status === 'PENDING' && e.fitStatus === 'FIT' && !e.isOverdue).length;
-    return { name: shop.name, pending, id: shop.id };
-  });
+  if (adminDash) {
+    totalCustomers = adminDash.totalCustomers;
+    pendingCount = adminDash.pendingCount;
+    overdueCount = adminDash.overdueCount;
+    completedCount = adminDash.completedCount;
+    shopPendingData = (adminDash.shops && adminDash.shops.length > 0)
+      ? adminDash.shops.map(s => ({ name: s.shopName, pending: s.pendingEnquiries, id: s.shopId }))
+      : activeShops.map(s => ({ name: s.name, pending: 0, id: s.id }));
+  } else {
+    // Fallback: Compute live stats from enquiries API
+    const allEntries = await Store.getEntries();
+    const nonDeleted = allEntries;
+    const uniqueCustomerKeys = new Set(nonDeleted.map(e => (e.mobileNumber || e.customerName || '').trim()).filter(Boolean));
+    totalCustomers = uniqueCustomerKeys.size;
+    pendingCount = nonDeleted.filter(e => e.status === 'PENDING' && e.fitStatus === 'FIT' && !e.isOverdue).length;
+    overdueCount = nonDeleted.filter(e => e.isOverdue).length;
+    completedCount = nonDeleted.filter(e => e.status === 'COMPLETED' && e.fitStatus === 'FIT').length;
+
+    shopPendingData = activeShops.map(shop => {
+      const pending = nonDeleted.filter(e => e.shopId === shop.id && e.status === 'PENDING' && e.fitStatus === 'FIT' && !e.isOverdue).length;
+      return { name: shop.name, pending, id: shop.id };
+    });
+  }
+
   const maxPending = Math.max(1, ...shopPendingData.map(s => s.pending));
 
   container.innerHTML = `

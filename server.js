@@ -110,6 +110,6 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`  Apple Mobile / LAN:   http://${ip.address}:${PORT} (${ip.name})`);
   });
   console.log('====================================================');
-  console.log('  Backend API:          https://tyre-7c07.onrender.com/api/v1');
+  console.log('  Backend API:          https://api.flaremindstech.com/tyros/api/v1');
   console.log('====================================================');
 });
