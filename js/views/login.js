@@ -20,16 +20,22 @@ export function renderLogin(router) {
       <p style="font-size: 13px; color: var(--text-muted);">Sign in with workshop administrator credentials</p>
     </div>
 
+    <!-- Decoy inputs to absorb browser autofill heuristics -->
+    <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;" aria-hidden="true">
+      <input type="text" name="decoy_user" tabindex="-1" autocomplete="username">
+      <input type="password" name="decoy_pwd" tabindex="-1" autocomplete="current-password">
+    </div>
+
     <!-- Login Form -->
     <form id="login-form" autocomplete="off" style="display: flex; flex-direction: column;">
       <div class="form-group" style="margin: 0 0 14px;">
         <label class="form-label">Phone Number <span class="req">*</span></label>
-        <input type="tel" id="login-phone" name="tyros_user_phone" class="form-input" maxlength="10" autocomplete="off" value="" required>
+        <input type="tel" id="login-phone" name="tel_field_${Date.now()}" class="form-input" maxlength="10" autocomplete="new-password" readonly value="" required>
       </div>
 
       <div class="form-group" style="margin: 0 0 18px;">
         <label class="form-label">Password <span class="req">*</span></label>
-        <input type="password" id="login-password" name="tyros_user_pwd" class="form-input" autocomplete="new-password" value="" required>
+        <input type="password" id="login-password" name="pwd_field_${Date.now()}" class="form-input" autocomplete="new-password" readonly value="" required>
       </div>
 
       <div id="login-alert" class="notice-error-card" style="display:none; margin: 0 0 14px;">
