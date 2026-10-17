@@ -147,6 +147,8 @@ class StoreClass {
       const pending = nonDeleted.filter(e => e.status === 'PENDING' && e.fitStatus !== 'NOT_FIT' && !e.isNoResponse && !e.isOverdue).length;
       const overdue = nonDeleted.filter(e => e.isOverdue).length;
       const completed = nonDeleted.filter(e => e.status === 'COMPLETED' && e.fitStatus !== 'NOT_FIT').length;
+      const notFitted = nonDeleted.filter(e => e.fitStatus === 'NOT_FIT' || e.fit_status === 'NOT_FIT' || e.status === 'LOST').length;
+      const noResponse = nonDeleted.filter(e => e.status === 'NO_RESPONSE' || e.isNoResponse || e.is_no_response).length;
 
       const shopPendingData = activeShops.map(shop => {
         const pendingForShop = nonDeleted.filter(e => e.shopId === shop.id && e.status === 'PENDING' && e.fitStatus !== 'NOT_FIT' && !e.isNoResponse && !e.isOverdue).length;
@@ -173,6 +175,8 @@ class StoreClass {
         wonEnquiries: completed > 0 ? completed : 51,
         overdueCount: overdue,
         overdue: overdue,
+        notFittedCount: notFitted,
+        noResponseCount: noResponse,
         dueToday: 0,
         activeShops: activeShops.length,
         shops: shopPendingData

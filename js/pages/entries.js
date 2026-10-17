@@ -1,4 +1,5 @@
 // Tyros Admin - Customer Entries View (js/pages/entries.js)
+// Featuring Not Fitted and No Response separate filter pills, Excel export, and card actions
 import { Store } from '../store.js';
 import { UI } from '../ui.js';
 import { Sheet } from '../sheet.js';
@@ -9,7 +10,9 @@ export async function renderEntriesPage(router, params = {}) {
   container.className = 'page-container';
 
   // State
-  let activeFilter = params.filter ? params.filter.toLowerCase() : 'all'; // 'all' | 'pending' | 'overdue' | 'completed' | 'other'
+  // Allowed activeFilter: 'all' | 'pending' | 'overdue' | 'completed' | 'not_fitted' | 'no_response'
+  let activeFilter = params.filter ? params.filter.toLowerCase() : 'all';
+  if (activeFilter === 'other') activeFilter = 'not_fitted';
   let selectedShopId = params.shopId || 'all';
   let searchQuery = '';
   let allEntries = [];
@@ -51,22 +54,23 @@ export async function renderEntriesPage(router, params = {}) {
       <div class="skeleton" style="height: 44px; border-radius: var(--radius-md); margin-bottom: var(--space-3);"></div>
       <div class="skeleton" style="height: 36px; border-radius: var(--radius-pill); margin-bottom: var(--space-4);"></div>
       <div style="display:flex; flex-direction:column; gap:var(--space-3);">
-        <div class="skeleton" style="height: 110px; border-radius:var(--radius-lg);"></div>
-        <div class="skeleton" style="height: 110px; border-radius:var(--radius-lg);"></div>
-        <div class="skeleton" style="height: 110px; border-radius:var(--radius-lg);"></div>
+        <div class="skeleton" style="height: 120px; border-radius:var(--radius-lg);"></div>
+        <div class="skeleton" style="height: 120px; border-radius:var(--radius-lg);"></div>
+        <div class="skeleton" style="height: 120px; border-radius:var(--radius-lg);"></div>
       </div>
     </div>
   `;
 
   async function loadData() {
+    if (isFetching) return;
+    isFetching = true;
     try {
-      isFetching = true;
-      const [fetchedShops, fetchedEntries] = await Promise.all([
-        Store.getShops(),
-        Store.getEntries({ limit: 100 })
+      const [entriesData, shopsData] = await Promise.all([
+        Store.getEntries({ limit: 100 }),
+        Store.getShops()
       ]);
-      shops = fetchedShops;
-      allEntries = fetchedEntries.filter(e => !e.isDeleted);
+      allEntries = entriesData || [];
+      shops = shopsData || [];
       renderUI();
     } catch (err) {
       console.error('[Entries] Load error:', err);
@@ -93,20 +97,22 @@ export async function renderEntriesPage(router, params = {}) {
 
       // Status pill filter
       if (activeFilter === 'pending') {
-        if (e.status !== 'PENDING' || e.fitStatus === 'NOT_FIT' || e.isNoResponse || e.isOverdue) return false;
+        if (e.status !== 'PENDING' || e.fitStatus === 'NOT_FIT' || e.fit_status === 'NOT_FIT' || e.isNoResponse || e.isOverdue) return false;
       } else if (activeFilter === 'overdue') {
         if (!e.isOverdue) return false;
       } else if (activeFilter === 'completed') {
-        if (e.status !== 'COMPLETED' || e.fitStatus === 'NOT_FIT') return false;
-      } else if (activeFilter === 'other') {
-        // Lost, No Response, or Unfit Pending
-        const isComp = e.status === 'COMPLETED' && e.fitStatus !== 'NOT_FIT';
-        const isPend = e.status === 'PENDING' && e.fitStatus !== 'NOT_FIT' && !e.isNoResponse && !e.isOverdue;
-        const isOver = e.isOverdue;
-        if (isComp || isPend || isOver) return false;
+        if (e.status !== 'COMPLETED' || e.fitStatus === 'NOT_FIT' || e.fit_status === 'NOT_FIT') return false;
+      } else if (activeFilter === 'not_fitted') {
+        // Not Fitted / Lost
+        const isNotFit = e.fitStatus === 'NOT_FIT' || e.fit_status === 'NOT_FIT' || e.status === 'LOST';
+        if (!isNotFit) return false;
+      } else if (activeFilter === 'no_response') {
+        // No Response
+        const isNoResp = e.status === 'NO_RESPONSE' || e.isNoResponse || e.is_no_response;
+        if (!isNoResp) return false;
       }
 
-      // Search query (300ms debounced)
+      // Search query (debounced)
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         const matchName = (e.customerName || '').toLowerCase().includes(q);
@@ -118,6 +124,37 @@ export async function renderEntriesPage(router, params = {}) {
 
       return true;
     });
+  }
+
+  // Export filtered entries to CSV / Excel
+  function exportToExcel(records) {
+    if (!records || records.length === 0) {
+      Toast.show('No records to export', 'warning');
+      return;
+    }
+
+    const headers = ['Customer Name', 'Phone', 'Vehicle Reg', 'Vehicle Details', 'Tyre Spec', 'Amount', 'Branch', 'Status', 'Date'];
+    const rows = records.map(r => [
+      `"${(r.customerName || '').replace(/"/g, '""')}"`,
+      `"${r.mobileNumber || ''}"`,
+      `"${(r.vehicleNumber || '').replace(/"/g, '""')}"`,
+      `"${(r.vehicleDetails || '').replace(/"/g, '""')}"`,
+      `"${r.tyreBrand || ''} ${r.tyreSize || ''}"`,
+      r.amount || 0,
+      `"${(r.shopName || '').replace(/"/g, '""')}"`,
+      `"${r.status || ''}"`,
+      `"${r.dateText || ''}"`
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `tyros-enquiries-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    Toast.show(`Exported ${records.length} records to Excel CSV`, 'success');
   }
 
   function showEntryDetailSheet(entry) {
@@ -138,14 +175,14 @@ export async function renderEntriesPage(router, params = {}) {
         </div>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:10px; background:var(--bg-subtle); padding:14px; border-radius:var(--radius-md); font-size:13.5px; margin-bottom:16px;">
+      <div style="display:flex; flex-direction:column; gap:10px; font-size:13.5px;">
         <div style="display:flex; justify-content:space-between;">
-          <span style="color:var(--text-muted);">Vehicle</span>
-          <strong>${UI.escape(entry.vehicleDetails)}</strong>
+          <span style="color:var(--text-muted);">Vehicle Registration</span>
+          <strong>${UI.escape(entry.vehicleNumber || 'Not Provided')}</strong>
         </div>
         <div style="display:flex; justify-content:space-between;">
-          <span style="color:var(--text-muted);">Registration</span>
-          <strong style="font-family:monospace; background:var(--bg-surface); padding:1px 6px; border-radius:4px;">${UI.escape(entry.vehicleNumber || 'N/A')}</strong>
+          <span style="color:var(--text-muted);">Vehicle Model</span>
+          <span>${UI.escape(entry.vehicleDetails || 'Four Wheeler')}</span>
         </div>
         <div style="display:flex; justify-content:space-between;">
           <span style="color:var(--text-muted);">Tyre Spec</span>
@@ -187,10 +224,11 @@ export async function renderEntriesPage(router, params = {}) {
     const filtered = getFilteredEntries();
 
     // Reconcile status counts across all entries
-    const countCompleted = allEntries.filter(e => e.status === 'COMPLETED' && e.fitStatus !== 'NOT_FIT').length;
-    const countPending = allEntries.filter(e => e.status === 'PENDING' && e.fitStatus !== 'NOT_FIT' && !e.isNoResponse && !e.isOverdue).length;
+    const countCompleted = allEntries.filter(e => e.status === 'COMPLETED' && e.fitStatus !== 'NOT_FIT' && e.fit_status !== 'NOT_FIT').length;
+    const countPending = allEntries.filter(e => e.status === 'PENDING' && e.fitStatus !== 'NOT_FIT' && e.fit_status !== 'NOT_FIT' && !e.isNoResponse && !e.isOverdue).length;
     const countOverdue = allEntries.filter(e => e.isOverdue).length;
-    const countOther = Math.max(0, allEntries.length - (countCompleted + countPending + countOverdue));
+    const countNotFitted = allEntries.filter(e => e.fitStatus === 'NOT_FIT' || e.fit_status === 'NOT_FIT' || e.status === 'LOST').length;
+    const countNoResponse = allEntries.filter(e => e.status === 'NO_RESPONSE' || e.isNoResponse || e.is_no_response).length;
 
     container.innerHTML = `
       <header class="app-header mobile-only-header">
@@ -201,45 +239,71 @@ export async function renderEntriesPage(router, params = {}) {
               ${filtered.length} of ${allEntries.length} records · ${shops.length} shops
             </div>
           </div>
+          <div class="header-actions">
+            <button id="entries-profile-btn" class="header-icon-btn" title="Profile">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </button>
+          </div>
         </div>
       </header>
 
       <div style="padding-top: var(--space-3);">
-        <!-- Search and Shop Filter Row -->
-        <div style="display:flex; gap:10px; margin-bottom:var(--space-3); flex-wrap:wrap;">
-          <div style="flex:1; min-width:200px; position:relative;">
+        <!-- Search and Excel Row -->
+        <div style="display:flex; gap:10px; margin-bottom:var(--space-3); align-items:center;">
+          <div style="flex:1; position:relative;">
             <input
               type="text"
               id="entries-search-input"
-              placeholder="Search name, phone, vehicle..."
+              class="form-input"
+              placeholder="Search customer, phone..."
               value="${UI.escape(searchQuery)}"
-              style="width:100%; padding-left:36px;"
+              style="width:100%; padding-left:36px; height:42px; border-radius:12px;"
             />
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.3" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </div>
 
-          <select id="entries-shop-select" style="min-width:140px;">
-            <option value="all" ${selectedShopId === 'all' ? 'selected' : ''}>All Shops (${shops.length})</option>
+          <button id="entries-excel-btn" class="excel-export-btn" title="Export to Excel">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+            <span>Excel</span>
+          </button>
+        </div>
+
+        <!-- Filter Dropdowns Row -->
+        <div style="display:flex; gap:10px; margin-bottom:var(--space-3);">
+          <select id="entries-shop-select" class="form-input" style="flex:1; height:38px; font-size:13px; border-radius:10px; background:var(--bg-surface);">
+            <option value="all" ${selectedShopId === 'all' ? 'selected' : ''}>🏪 All Shops (${shops.length})</option>
             ${shops.map(s => `<option value="${s.id}" ${selectedShopId === s.id ? 'selected' : ''}>${UI.escape(s.name)}</option>`).join('')}
+          </select>
+
+          <select id="entries-time-select" class="form-input" style="flex:1; height:38px; font-size:13px; border-radius:10px; background:var(--bg-surface);">
+            <option value="all">📅 All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month" selected>This Month</option>
           </select>
         </div>
 
-        <!-- Filter Pills Bar (All, Pending, Overdue, Completed, Other) -->
+        <!-- Filter Pills Bar (All, Pending, Overdue, Completed, Not Fitted, No Response) -->
         <div class="filter-pills-row">
           <button class="filter-pill ${activeFilter === 'all' ? 'active' : ''}" data-filter="all">
             All (${allEntries.length})
+          </button>
+          <button class="filter-pill ${activeFilter === 'completed' ? 'active' : ''}" data-filter="completed">
+            Completed (${countCompleted})
+          </button>
+          <button class="filter-pill pill-not-fitted ${activeFilter === 'not_fitted' ? 'active' : ''}" data-filter="not_fitted">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#E11D48;"></span>
+            Not Fitted (${countNotFitted})
+          </button>
+          <button class="filter-pill pill-no-response ${activeFilter === 'no_response' ? 'active' : ''}" data-filter="no_response">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#7C3AED;"></span>
+            No Response (${countNoResponse})
           </button>
           <button class="filter-pill ${activeFilter === 'pending' ? 'active' : ''}" data-filter="pending">
             Pending (${countPending})
           </button>
           <button class="filter-pill ${activeFilter === 'overdue' ? 'active' : ''}" data-filter="overdue">
             Overdue (${countOverdue})
-          </button>
-          <button class="filter-pill ${activeFilter === 'completed' ? 'active' : ''}" data-filter="completed">
-            Completed (${countCompleted})
-          </button>
-          <button class="filter-pill ${activeFilter === 'other' ? 'active' : ''}" data-filter="other">
-            Other (${countOther})
           </button>
         </div>
 
@@ -250,12 +314,22 @@ export async function renderEntriesPage(router, params = {}) {
 
     const listEl = container.querySelector('#entries-list-container');
 
+    // Bind Excel button
+    container.querySelector('#entries-excel-btn')?.addEventListener('click', () => {
+      exportToExcel(filtered);
+    });
+
+    // Bind Profile header button
+    container.querySelector('#entries-profile-btn')?.addEventListener('click', () => {
+      router.navigate('#/profile');
+    });
+
     if (filtered.length === 0) {
       listEl.innerHTML = `
         <div style="background:var(--bg-surface); border:1px solid var(--border-default); border-radius:var(--radius-xl); padding:40px var(--space-4); text-align:center;">
           <div style="font-size:32px; margin-bottom:8px;">🔍</div>
           <div style="font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--text-primary);">No matching records</div>
-          <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">Try adjusting your search query or filter selection.</p>
+          <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">Try selecting another status pill or clearing your search.</p>
         </div>
       `;
     } else {
@@ -266,12 +340,22 @@ export async function renderEntriesPage(router, params = {}) {
         card.setAttribute('role', 'button');
         card.setAttribute('tabindex', '0');
 
-        const isComp = entry.status === 'COMPLETED' && entry.fitStatus !== 'NOT_FIT';
-        const isOver = entry.isOverdue;
-        const statusColor = isComp ? 'var(--status-completed)' : isOver ? 'var(--status-overdue)' : 'var(--status-pending)';
-        const statusBg = isComp ? 'var(--status-completed-bg)' : isOver ? 'var(--status-overdue-bg)' : 'var(--status-pending-bg)';
+        // Determine badge
+        let badgeHtml = '';
+        if (entry.fitStatus === 'NOT_FIT' || entry.fit_status === 'NOT_FIT' || entry.status === 'LOST') {
+          badgeHtml = `<span class="status-badge-not-fitted">NOT FITTED</span>`;
+        } else if (entry.status === 'NO_RESPONSE' || entry.isNoResponse || entry.is_no_response) {
+          badgeHtml = `<span class="status-badge-no-response">NO RESPONSE</span>`;
+        } else if (entry.status === 'COMPLETED') {
+          badgeHtml = `<span class="status-badge-completed">COMPLETED</span>`;
+        } else {
+          badgeHtml = `<span class="status-badge-pending">PENDING</span>`;
+        }
+
+        const cleanPhone = (entry.mobileNumber || '').replace(/\D/g, '');
 
         card.innerHTML = `
+          <!-- Card Top: Avatar + Name + Phone on Left, Status Badge on Right -->
           <div class="enquiry-top-row">
             <div style="display:flex; align-items:center; gap:12px; min-width:0;">
               <div class="enquiry-avatar" style="background:${avatarColor.bg}; color:${avatarColor.text};">
@@ -282,33 +366,45 @@ export async function renderEntriesPage(router, params = {}) {
                   ${UI.escape(entry.customerName)}
                 </div>
                 <div class="enquiry-cust-phone">
-                  <span>📞</span>
-                  <span>${UI.escape(entry.mobileNumber)}</span>
+                  <a href="tel:${entry.mobileNumber}" style="color:var(--text-muted); text-decoration:none;" onclick="event.stopPropagation()">
+                    ${UI.escape(entry.mobileNumber)}
+                  </a>
                 </div>
               </div>
             </div>
-            <span style="font-size:11px; font-weight:700; text-transform:uppercase; padding:3px 8px; border-radius:6px; background:${statusBg}; color:${statusColor}; flex-shrink:0;">
-              ${UI.escape(entry.status)}
+            ${badgeHtml}
+          </div>
+
+          <!-- Vehicle license plate & details -->
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px;">
+            ${entry.vehicleNumber ? `
+              <div class="enquiry-vehicle-pill" style="background:var(--bg-subtle); border:1px solid var(--border-default); padding:2px 8px; border-radius:6px; font-weight:700;">
+                <span>🚗 ${UI.escape(entry.vehicleNumber)}</span>
+              </div>
+            ` : ''}
+            <span style="color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+              ${UI.escape(entry.vehicleDetails || 'Four Wheeler')} · ${UI.escape(entry.tyreBrand || '')} · ${UI.escape(entry.tyreSize || '')}
             </span>
           </div>
 
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-            <div class="enquiry-vehicle-pill">
-              <span>🚗</span>
-              <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px;">
-                ${UI.escape(entry.vehicleDetails)} ${entry.vehicleNumber ? `· ${UI.escape(entry.vehicleNumber)}` : ''}
-              </span>
+          <!-- Bottom Row: Branch & Time on Left, Action Buttons on Right -->
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--border-subtle); padding-top:8px; margin-top:2px;">
+            <div style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+              <span>🏪 ${UI.escape(entry.shopName || 'Branch')}</span>
+              <span>·</span>
+              <span>🕒 ${entry.dateText || '22 Oct, 11:30 AM'}</span>
             </div>
-            <span style="font-size:12px; font-weight:600; color:var(--text-muted);">${UI.escape(entry.shopName || 'Shop')}</span>
-          </div>
-
-          <div class="enquiry-details-row">
-            <span style="font-size:12.5px; color:var(--text-secondary); font-weight:500;">
-              ${UI.escape(entry.tyreSize)} ${UI.escape(entry.tyreBrand)} · ${entry.quantity || 1} tyres
-            </span>
-            <span style="font-family:var(--font-display); font-size:16px; font-weight:700; color:var(--accent);">
-              ₹${Number(entry.amount || 0).toLocaleString('en-IN')}
-            </span>
+            <div style="display:flex; align-items:center; gap:8px;" onclick="event.stopPropagation()">
+              <a href="tel:${entry.mobileNumber}" class="quick-action-btn" title="Call Customer">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </a>
+              <a href="https://wa.me/91${cleanPhone}" target="_blank" rel="noopener" class="quick-action-btn btn-whatsapp" title="WhatsApp Chat">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              </a>
+              <button class="quick-action-btn" title="View Details" onclick="showEntryDetailSheet(entry)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
           </div>
         `;
 

@@ -16,16 +16,17 @@ export function renderLoginPage(router) {
 
       <div id="login-error-box" class="login-error-banner" role="alert"></div>
 
-      <form id="login-form" novalidate>
+      <form id="login-form" novalidate autocomplete="off">
         <div class="form-group">
           <label class="form-label" for="login-phone">Mobile Number</label>
           <input
             type="tel"
             id="login-phone"
-            name="phone"
+            name="tyros_user_phone"
             class="form-input"
             maxlength="10"
-            autocomplete="tel"
+            autocomplete="off"
+            value=""
             required
           />
         </div>
@@ -35,9 +36,10 @@ export function renderLoginPage(router) {
           <input
             type="password"
             id="login-password"
-            name="password"
+            name="tyros_user_pwd"
             class="form-input"
-            autocomplete="current-password"
+            autocomplete="new-password"
+            value=""
             required
           />
         </div>
@@ -52,6 +54,16 @@ export function renderLoginPage(router) {
   const form = container.querySelector('#login-form');
   const errorBox = container.querySelector('#login-error-box');
   const submitBtn = container.querySelector('#login-submit');
+  const phoneInput = container.querySelector('#login-phone');
+  const passwordInput = container.querySelector('#login-password');
+
+  // Prevent browser password manager from autofilling dummy credentials
+  if (phoneInput) phoneInput.value = '';
+  if (passwordInput) passwordInput.value = '';
+  setTimeout(() => {
+    if (phoneInput) phoneInput.value = '';
+    if (passwordInput) passwordInput.value = '';
+  }, 60);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();

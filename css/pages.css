@@ -25,6 +25,33 @@
   flex-direction: column;
 }
 
+.pwd-mask {
+  -webkit-text-security: disc !important;
+}
+
+.password-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrap .form-input {
+  padding-right: 42px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
 .login-brand-header {
   text-align: center;
   margin-bottom: var(--space-6);
@@ -283,6 +310,18 @@
 }
 .dash-stat-tile.tile-other .dash-stat-num { color: var(--status-other); }
 .dash-stat-tile.tile-other .dash-stat-label { color: var(--status-other); }
+
+.dash-stat-tile.tile-not-fit {
+  border-top: 3px solid #E11D48;
+}
+.dash-stat-tile.tile-not-fit .dash-stat-num { color: #E11D48; }
+.dash-stat-tile.tile-not-fit .dash-stat-label { color: #E11D48; }
+
+.dash-stat-tile.tile-no-response {
+  border-top: 3px solid #7C3AED;
+}
+.dash-stat-tile.tile-no-response .dash-stat-num { color: #7C3AED; }
+.dash-stat-tile.tile-no-response .dash-stat-label { color: #7C3AED; }
 
 /* 6. Tools Grid: Tyre Master & Car Master (Defect 2 Fixed: "Brands & models" not truncated) */
 .dash-tools-grid {
@@ -551,6 +590,117 @@
   border-color: var(--accent);
   font-weight: 700;
   box-shadow: 0 2px 6px rgba(194, 65, 12, 0.25);
+}
+
+.filter-pill.pill-not-fitted.active {
+  background-color: #E11D48;
+  border-color: #E11D48;
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.3);
+}
+
+.filter-pill.pill-no-response.active {
+  background-color: #7C3AED;
+  border-color: #7C3AED;
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
+}
+
+.status-badge-not-fitted {
+  border: 1px solid #FDA4AF;
+  color: #E11D48;
+  background-color: #FFF1F2;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2.5px 8.5px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.status-badge-no-response {
+  border: 1px solid #DDD6FE;
+  color: #7C3AED;
+  background-color: #F5F3FF;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2.5px 8.5px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.status-badge-completed {
+  border: 1px solid #BBF7D0;
+  color: #16A34A;
+  background-color: #F0FDF4;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2.5px 8.5px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.status-badge-pending {
+  border: 1px solid #FED7AA;
+  color: #EA580C;
+  background-color: #FFF7ED;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2.5px 8.5px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.quick-action-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-default);
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.quick-action-btn:hover {
+  background-color: var(--bg-surface);
+  transform: scale(1.05);
+}
+
+.quick-action-btn.btn-whatsapp {
+  background-color: #F0FDF4;
+  color: #16A34A;
+  border-color: #BBF7D0;
+}
+
+.excel-export-btn {
+  height: 42px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid #86EFAC;
+  background-color: #F0FDF4;
+  color: #16A34A;
+  font-weight: 700;
+  font-size: 13.5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.excel-export-btn:hover {
+  background-color: #DCFCE7;
 }
 
 /* 11. Customer Enquiry Card (Entries Page) */

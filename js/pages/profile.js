@@ -9,7 +9,7 @@ export function renderProfilePage(router) {
 
   const user = Auth.getUser();
   const userName = user?.fullName || user?.name || 'Admin User';
-  const userPhone = user?.phone || '9999999999';
+  const userPhone = user?.phone || '';
   const userRole = (user?.role || 'ADMIN').toUpperCase();
   const currentTheme = UI.getTheme();
 

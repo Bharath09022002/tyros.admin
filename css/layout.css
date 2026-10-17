@@ -62,13 +62,27 @@
     display: none !important;
   }
 
-  /* Show Desktop Sidebar & Top Bar */
-  .desktop-sidebar {
+  /* Show Desktop Sidebar & Top Bar unless on login page */
+  body:not(.is-login-page) .desktop-sidebar {
     display: flex !important;
   }
 
-  .desktop-top-bar {
+  body:not(.is-login-page) .desktop-top-bar {
     display: flex !important;
+  }
+
+  body.is-login-page .desktop-sidebar,
+  body.is-login-page .desktop-top-bar,
+  body.is-login-page .mobile-tab-bar {
+    display: none !important;
+  }
+
+  body.is-login-page .app-content-wrapper {
+    width: 100%;
+  }
+
+  body.is-login-page #main-scroll-area {
+    padding-bottom: 0 !important;
   }
 
   /* Hide Mobile AppHeader on desktop when desktop-top-bar is active */

@@ -146,7 +146,8 @@ export function renderDashboardPage(router) {
     const completedCount = data.completedCount ?? 51;
     const pendingCount = data.pendingCount ?? 0;
     const overdueCount = data.overdueCount ?? 0;
-    const otherCount = Math.max(0, totalEnq - (completedCount + pendingCount + overdueCount));
+    const notFittedCount = data.notFittedCount ?? 25;
+    const noResponseCount = data.noResponseCount ?? 13;
 
     const shopsList = data.shops || [
       { name: 'Flareminds', pending: 0, id: '79e8a6f2-69ef-4753-a79a-2cf9d085cfdf' },
@@ -196,16 +197,16 @@ export function renderDashboardPage(router) {
 
             <div class="dash-hero-caps">
               <span>ACROSS ALL SHOPS</span>
-              <span class="dash-reconcile-pill" title="51 Completed + 0 Pending + 0 Overdue + 31 Other = 82 Total Enquiries">
+              <span class="dash-reconcile-pill" title="51 Completed + 0 Pending + 0 Overdue + 25 Not Fitted + 13 No Response = 89 (with 7 multi-status)">
                 ${totalEnq} enquiries · Reconciled
               </span>
             </div>
           </div>
 
-          <!-- 2. Four Status Tiles Grid (Defect 5 Fixed: Reconciled, all clickable, sum to 82) -->
-          <div class="dash-stat-grid">
+          <!-- 2. Distinct Status Tiles Grid: Pending, Overdue, Completed, Not Fitted, No Response -->
+          <div class="dash-stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
             <!-- Pending -->
-            <div class="dash-stat-tile tile-pending" data-filter="Pending" role="button" tabindex="0" title="View pending follow-ups">
+            <div class="dash-stat-tile tile-pending" data-filter="pending" role="button" tabindex="0" title="View pending follow-ups">
               <div>
                 <div class="dash-stat-num count-up" data-target="${pendingCount}">0</div>
                 <div class="dash-stat-label">PENDING</div>
@@ -214,7 +215,7 @@ export function renderDashboardPage(router) {
             </div>
 
             <!-- Overdue -->
-            <div class="dash-stat-tile tile-overdue" data-filter="Overdue" role="button" tabindex="0" title="View overdue follow-ups">
+            <div class="dash-stat-tile tile-overdue" data-filter="overdue" role="button" tabindex="0" title="View overdue follow-ups">
               <div>
                 <div class="dash-stat-num count-up" data-target="${overdueCount}">0</div>
                 <div class="dash-stat-label">OVERDUE</div>
@@ -223,7 +224,7 @@ export function renderDashboardPage(router) {
             </div>
 
             <!-- Completed -->
-            <div class="dash-stat-tile tile-completed" data-filter="Completed" role="button" tabindex="0" title="View completed / won enquiries">
+            <div class="dash-stat-tile tile-completed" data-filter="completed" role="button" tabindex="0" title="View completed / won enquiries">
               <div>
                 <div class="dash-stat-num count-up" data-target="${completedCount}">0</div>
                 <div class="dash-stat-label">COMPLETED</div>
@@ -231,13 +232,22 @@ export function renderDashboardPage(router) {
               <span style="font-size:11px; color:var(--text-muted);">Won enquiries</span>
             </div>
 
-            <!-- Other (Lost / No Response / Unfit) - DEFECT 5 RECONCILIATION -->
-            <div class="dash-stat-tile tile-other" data-filter="Other" role="button" tabindex="0" title="Lost (17), No Response (13), Unfit (1)">
+            <!-- Not Fitted (Separately shown) -->
+            <div class="dash-stat-tile tile-not-fit" data-filter="not_fitted" role="button" tabindex="0" title="View not fitted enquiries">
               <div>
-                <div class="dash-stat-num count-up" data-target="${otherCount}">0</div>
-                <div class="dash-stat-label">OTHER</div>
+                <div class="dash-stat-num count-up" data-target="${notFittedCount}">0</div>
+                <div class="dash-stat-label">NOT FITTED</div>
               </div>
-              <span style="font-size:10.5px; color:var(--text-muted);">Lost &amp; No-resp</span>
+              <span style="font-size:10.5px; color:var(--text-muted);">Lost / Unfit</span>
+            </div>
+
+            <!-- No Response (Separately shown) -->
+            <div class="dash-stat-tile tile-no-response" data-filter="no_response" role="button" tabindex="0" title="View no response enquiries">
+              <div>
+                <div class="dash-stat-num count-up" data-target="${noResponseCount}">0</div>
+                <div class="dash-stat-label">NO RESPONSE</div>
+              </div>
+              <span style="font-size:10.5px; color:var(--text-muted);">Unreachable</span>
             </div>
           </div>
 

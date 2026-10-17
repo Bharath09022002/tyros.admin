@@ -7,13 +7,13 @@ export class HashRouter {
     this.currentRoute = null;
     this.container = null;
     this.routes = {
-      '#/login': () => import('./pages/login.js?v=2.0.4').then(m => m.renderLoginPage),
-      '#/dashboard': () => import('./pages/dashboard.js?v=2.0.4').then(m => m.renderDashboardPage),
-      '#/entries': () => import('./pages/entries.js?v=2.0.4').then(m => m.renderEntriesPage),
-      '#/report': () => import('./pages/report.js?v=2.0.4').then(m => m.renderReportPage),
-      '#/reports': () => import('./pages/report.js?v=2.0.4').then(m => m.renderReportPage),
-      '#/manage': () => import('./pages/manage.js?v=2.0.4').then(m => m.renderManagePage),
-      '#/profile': () => import('./pages/profile.js?v=2.0.4').then(m => m.renderProfilePage),
+      '#/login': () => import('./pages/login.js?v=2.0.9').then(m => m.renderLoginPage),
+      '#/dashboard': () => import('./pages/dashboard.js?v=2.0.9').then(m => m.renderDashboardPage),
+      '#/entries': () => import('./pages/entries.js?v=2.0.9').then(m => m.renderEntriesPage),
+      '#/report': () => import('./pages/report.js?v=2.0.9').then(m => m.renderReportPage),
+      '#/reports': () => import('./pages/report.js?v=2.0.9').then(m => m.renderReportPage),
+      '#/manage': () => import('./pages/manage.js?v=2.0.9').then(m => m.renderManagePage),
+      '#/profile': () => import('./pages/profile.js?v=2.0.9').then(m => m.renderProfilePage),
     };
   }
 
@@ -105,6 +105,8 @@ export class HashRouter {
 
   updateNavigationUI(currentPath) {
     const isLoginPage = currentPath === '#/login';
+    document.body.classList.toggle('is-login-page', isLoginPage);
+
     const mobileTabBar = document.querySelector('.mobile-tab-bar');
     const desktopSidebar = document.querySelector('.desktop-sidebar');
     const desktopTopBar = document.querySelector('.desktop-top-bar');
