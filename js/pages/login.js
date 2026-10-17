@@ -24,8 +24,6 @@ export function renderLoginPage(router) {
             id="login-phone"
             name="phone"
             class="form-input"
-            placeholder="10-digit mobile number"
-            value="9999999999"
             maxlength="10"
             autocomplete="tel"
             required
@@ -39,8 +37,6 @@ export function renderLoginPage(router) {
             id="login-password"
             name="password"
             class="form-input"
-            placeholder="Enter password"
-            value="123456789"
             autocomplete="current-password"
             required
           />

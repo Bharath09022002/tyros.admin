@@ -9,20 +9,11 @@ class UIManager {
   initTheme() {
     if (typeof window === 'undefined') return;
     const stored = localStorage.getItem(this.themeKey);
-    if (stored === 'dark' || stored === 'light') {
-      this.setTheme(stored);
+    // Explicitly default to 'light' theme unless user manually chose 'dark'
+    if (stored === 'dark') {
+      this.setTheme('dark');
     } else {
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      this.setTheme(prefersDark ? 'dark' : 'light', false);
-    }
-
-    // Listen to system changes
-    if (window.matchMedia) {
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-        if (!localStorage.getItem(this.themeKey)) {
-          this.setTheme(e.matches ? 'dark' : 'light', false);
-        }
-      });
+      this.setTheme('light', false);
     }
   }
 
